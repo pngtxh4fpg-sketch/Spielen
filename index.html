@@ -1,0 +1,865 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ARCADE — UTTT & BATTLESHIP</title>
+<script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=VT323&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --g:#00ff41;--a:#ff9500;--b:#00aaff;--r:#ff3333;
+  --bg:#07090f;--bg2:#0d1117;--bd:#1a2633;
+  --gdim:rgba(0,255,65,.18);--adim:rgba(255,149,0,.18);
+}
+body{background:var(--bg);color:var(--g);font-family:'Share Tech Mono',monospace;min-height:100vh;overflow-x:hidden;}
+body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.06) 2px,rgba(0,0,0,.06) 4px);pointer-events:none;z-index:9999;}
+@keyframes flicker{0%{opacity:.9}5%{opacity:.8}10%{opacity:.95}20%{opacity:1}}
+#app{animation:flicker .4s ease-out;}
+.screen{display:none;min-height:100vh;}
+.screen.active{display:flex;flex-direction:column;align-items:center;justify-content:center;}
+h1{font-family:'VT323',monospace;font-size:5rem;color:var(--g);text-shadow:0 0 20px var(--g),0 0 40px var(--g);letter-spacing:4px;}
+h2{font-family:'VT323',monospace;font-size:3rem;color:var(--a);text-shadow:0 0 15px var(--a);letter-spacing:2px;}
+h3{font-family:'VT323',monospace;font-size:2rem;color:var(--b);text-shadow:0 0 10px var(--b);}
+p{line-height:1.6;}
+.btn{font-family:'VT323',monospace;font-size:1.8rem;padding:10px 28px;border:2px solid var(--g);background:transparent;color:var(--g);cursor:pointer;transition:all .15s;letter-spacing:2px;position:relative;overflow:hidden;}
+.btn::before{content:'';position:absolute;inset:0;background:var(--g);transform:scaleX(0);transform-origin:left;transition:transform .15s;z-index:-1;}
+.btn:hover::before{transform:scaleX(1);}
+.btn:hover{color:var(--bg);}
+.btn.amb{border-color:var(--a);color:var(--a);}
+.btn.amb::before{background:var(--a);}
+.btn.blu{border-color:var(--b);color:var(--b);}
+.btn.blu::before{background:var(--b);}
+.btn:disabled{opacity:.35;cursor:not-allowed;}
+.btn:disabled::before{display:none;}
+input[type=text]{font-family:'Share Tech Mono',monospace;font-size:1.2rem;background:transparent;border:2px solid var(--g);color:var(--g);padding:10px 15px;outline:none;letter-spacing:3px;text-align:center;width:220px;}
+input[type=text]:focus{border-color:var(--a);box-shadow:0 0 10px rgba(255,149,0,.3);}
+.stat{font-size:.85rem;color:var(--a);text-align:center;min-height:1.4em;letter-spacing:1px;}
+.stat.ok{color:var(--g);}
+.stat.err{color:var(--r);}
+@keyframes blink{50%{opacity:0}}
+.blink{animation:blink 1s step-end infinite;}
+.conn-bar{position:fixed;top:0;left:0;right:0;padding:4px 14px;background:var(--bg2);border-bottom:1px solid var(--bd);display:flex;align-items:center;gap:10px;font-size:.75rem;color:rgba(0,255,65,.45);z-index:50;}
+.conn-dot{width:8px;height:8px;border-radius:50%;background:var(--g);box-shadow:0 0 6px var(--g);}
+.conn-dot.off{background:var(--r);box-shadow:0 0 6px var(--r);}
+.leave-btn{margin-left:auto;cursor:pointer;color:rgba(0,255,65,.35);}
+.leave-btn:hover{color:var(--g);}
+.back-btn{position:fixed;bottom:20px;left:20px;background:none;border:none;color:rgba(0,255,65,.35);cursor:pointer;font-family:'Share Tech Mono',monospace;font-size:.85rem;}
+.back-btn:hover{color:var(--g);}
+
+/* HOME */
+#screen-home{gap:50px;padding:40px;text-align:center;}
+.home-sub{color:rgba(0,255,65,.4);font-size:.8rem;letter-spacing:4px;margin-top:8px;}
+.game-cards{display:flex;gap:40px;flex-wrap:wrap;justify-content:center;}
+.game-card{border:1px solid var(--bd);padding:40px 50px;cursor:pointer;transition:all .2s;background:var(--bg2);min-width:280px;}
+.game-card:hover{border-color:var(--g);box-shadow:0 0 25px rgba(0,255,65,.15);transform:translateY(-4px);}
+.game-card .ico{font-size:4rem;display:block;margin-bottom:14px;}
+.game-card h2{margin-bottom:10px;}
+.game-card p{color:rgba(0,255,65,.45);font-size:.82rem;max-width:200px;margin:0 auto;}
+
+/* LOBBY */
+#screen-lobby{gap:40px;padding:40px;}
+.lobby-panels{display:flex;gap:40px;flex-wrap:wrap;justify-content:center;}
+.lobby-panel{border:1px solid var(--bd);background:var(--bg2);padding:30px;text-align:center;min-width:250px;display:flex;flex-direction:column;gap:14px;align-items:center;}
+.room-code{font-family:'VT323',monospace;font-size:3rem;color:var(--a);letter-spacing:8px;text-shadow:0 0 12px var(--a);border:1px dashed rgba(255,149,0,.4);padding:10px 20px;}
+.peer-note{font-size:.7rem;color:rgba(0,255,65,.3);max-width:240px;line-height:1.5;}
+
+/* CONNECTING */
+#screen-connecting{gap:30px;text-align:center;}
+@keyframes spin{to{transform:rotate(360deg)}}
+.spinner{width:60px;height:60px;border:3px solid var(--bd);border-top-color:var(--g);border-radius:50%;animation:spin 1s linear infinite;}
+
+/* OVERLAY */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.85);display:none;align-items:center;justify-content:center;z-index:100;flex-direction:column;gap:28px;}
+.overlay.show{display:flex;}
+.overlay h2{font-size:4.5rem;}
+
+/* UTTT */
+#screen-uttt{gap:18px;padding:70px 20px 20px;flex-direction:column;align-items:center;justify-content:flex-start;}
+.uttt-info{display:flex;gap:24px;align-items:center;flex-wrap:wrap;justify-content:center;}
+.uttt-badge{font-family:'VT323',monospace;font-size:1.8rem;padding:7px 18px;border:1px solid var(--bd);color:rgba(0,255,65,.5);transition:all .2s;}
+.uttt-badge.cur.x{border-color:var(--g);color:var(--g);box-shadow:0 0 12px rgba(0,255,65,.25);}
+.uttt-badge.cur.o{border-color:var(--a);color:var(--a);box-shadow:0 0 12px rgba(255,149,0,.25);}
+.uttt-badge.o{color:rgba(255,149,0,.5);}
+.outer-board{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;border:2px solid var(--g);padding:8px;background:var(--bg2);box-shadow:0 0 20px rgba(0,255,65,.1);}
+.small-board{display:grid;grid-template-columns:repeat(3,1fr);gap:3px;padding:4px;border:1px solid var(--bd);position:relative;transition:border-color .2s;}
+.small-board.active{border-color:var(--b);box-shadow:inset 0 0 10px rgba(0,170,255,.12);}
+.small-board.wx{background:rgba(0,255,65,.07);border-color:rgba(0,255,65,.5);}
+.small-board.wo{background:rgba(255,149,0,.07);border-color:rgba(255,149,0,.5);}
+.small-board.wd{background:rgba(80,80,80,.07);border-color:#333;}
+.board-win{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:'VT323',monospace;font-size:4.5rem;pointer-events:none;z-index:1;}
+.board-win.x{color:var(--g);text-shadow:0 0 12px var(--g);}
+.board-win.o{color:var(--a);text-shadow:0 0 12px var(--a);}
+.board-win.d{color:#444;font-size:1.5rem;}
+.ucell{width:46px;height:46px;display:flex;align-items:center;justify-content:center;font-family:'VT323',monospace;font-size:1.9rem;border:1px solid rgba(26,38,51,.8);cursor:pointer;position:relative;z-index:2;transition:background .1s,border-color .1s;}
+.ucell.x{color:var(--g);}
+.ucell.o{color:var(--a);}
+.ucell.clickable:hover{background:rgba(0,170,255,.1);border-color:rgba(0,170,255,.4);}
+.ucell.taken,.ucell.locked{cursor:default;}
+
+/* BS SETUP */
+#screen-bs-setup{flex-direction:column;gap:18px;padding:70px 20px 20px;align-items:center;justify-content:flex-start;}
+.setup-wrap{display:flex;gap:30px;flex-wrap:wrap;justify-content:center;align-items:flex-start;}
+.ship-list{display:flex;flex-direction:column;gap:8px;min-width:200px;}
+.ship-item{padding:9px 13px;border:1px solid var(--bd);cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:10px;transition:all .15s;font-size:.85rem;}
+.ship-item:hover:not(.placed){border-color:rgba(0,170,255,.5);}
+.ship-item.sel{border-color:var(--b);color:var(--b);box-shadow:0 0 8px rgba(0,170,255,.2);}
+.ship-item.placed{border-color:rgba(0,255,65,.4);color:rgba(0,255,65,.4);text-decoration:line-through;cursor:default;}
+.ship-pip-row{display:flex;gap:2px;}
+.ship-pip{width:11px;height:11px;background:currentColor;opacity:.7;}
+.setup-controls{display:flex;flex-direction:column;gap:8px;}
+
+/* BS BOARDS */
+#screen-bs-game{flex-direction:column;gap:14px;padding:65px 20px 20px;align-items:center;justify-content:flex-start;}
+.bs-boards{display:flex;gap:30px;flex-wrap:wrap;justify-content:center;align-items:flex-start;}
+.bs-wrap{display:flex;flex-direction:column;gap:8px;align-items:center;}
+.bs-title{font-family:'VT323',monospace;font-size:1.4rem;letter-spacing:2px;}
+.bs-grid{display:grid;grid-template-columns:18px repeat(10,32px);grid-template-rows:18px repeat(10,32px);gap:2px;}
+.bs-hdr{display:flex;align-items:center;justify-content:center;font-size:.7rem;color:rgba(0,255,65,.35);}
+.bcell{width:32px;height:32px;border:1px solid var(--bd);display:flex;align-items:center;justify-content:center;font-size:1.1rem;transition:all .1s;cursor:default;}
+.bcell.ship{background:rgba(0,170,255,.18);border-color:rgba(0,170,255,.4);}
+.bcell.hit{background:rgba(255,51,51,.25);border-color:var(--r);color:var(--r);}
+.bcell.miss{color:rgba(0,255,65,.3);}
+.bcell.sunk{background:rgba(255,51,51,.15);border-color:rgba(255,51,51,.5);color:var(--r);}
+.bcell.pending{color:rgba(255,149,0,.6);}
+.bcell.tgt{cursor:crosshair;}
+.bcell.tgt:hover{background:rgba(255,149,0,.18);border-color:var(--a);}
+.bcell.prev{background:rgba(0,170,255,.12);border-color:rgba(0,170,255,.4);}
+.bcell.inv{background:rgba(255,51,51,.12);border-color:rgba(255,51,51,.4);}
+.bs-ship-status{display:flex;flex-direction:column;gap:3px;font-size:.78rem;min-width:155px;}
+.bs-ship-row{display:flex;justify-content:space-between;padding:2px 0;border-bottom:1px solid rgba(26,38,51,.5);}
+.bs-ship-row.sunk{color:var(--r);text-decoration:line-through;}
+.bs-label{font-size:.75rem;margin-bottom:4px;letter-spacing:1px;}
+
+/* Responsive */
+@media(max-width:500px){
+  h1{font-size:3rem;}
+  .game-card{padding:25px 30px;min-width:200px;}
+  .ucell{width:30px;height:30px;font-size:1.3rem;}
+  .outer-board{gap:5px;padding:5px;}
+  .small-board{gap:2px;padding:2px;}
+  .board-win{font-size:3rem;}
+  .bcell{width:26px;height:26px;font-size:.9rem;}
+  .bs-grid{grid-template-columns:14px repeat(10,26px);grid-template-rows:14px repeat(10,26px);}
+  .lobby-panels{flex-direction:column;}
+}
+</style>
+</head>
+<body>
+<div id="app">
+
+<!-- HOME -->
+<div id="screen-home" class="screen active">
+  <div>
+    <h1>ARCADE</h1>
+    <p class="home-sub">ONLINE MULTIPLAYER — WÄHLE EIN SPIEL</p>
+  </div>
+  <div class="game-cards">
+    <div class="game-card" onclick="selectGame('uttt')">
+      <span class="ico">⊞</span>
+      <h2>ULTIMATE TTT</h2>
+      <p>Tic Tac Toe² — gewinne 3 Boards in einer Reihe</p>
+    </div>
+    <div class="game-card" onclick="selectGame('battleship')">
+      <span class="ico">⚓</span>
+      <h2>BATTLESHIP</h2>
+      <p>Versenke die Flotte deines Gegners</p>
+    </div>
+  </div>
+</div>
+
+<!-- LOBBY -->
+<div id="screen-lobby" class="screen">
+  <h2 id="lobby-title">LOBBY</h2>
+  <div class="lobby-panels">
+    <div class="lobby-panel">
+      <h3>ERSTELLEN</h3>
+      <button class="btn" onclick="createRoom()">RAUM ERSTELLEN</button>
+      <div id="code-box" style="display:none;flex-direction:column;align-items:center;gap:10px;">
+        <p class="stat">RAUMCODE:</p>
+        <div class="room-code" id="room-code-display"></div>
+        <button class="btn" style="font-size:1rem;padding:6px 18px;" onclick="copyCode()">KOPIEREN</button>
+        <p class="stat" id="host-stat">Warte auf Gegner<span class="blink">_</span></p>
+      </div>
+      <p class="peer-note">Verwendet PeerJS (WebRTC). Beide Spieler brauchen Internetzugang.</p>
+    </div>
+    <div class="lobby-panel">
+      <h3>BEITRETEN</h3>
+      <input type="text" id="join-input" placeholder="CODE" maxlength="6" oninput="this.value=this.value.toUpperCase()"/>
+      <button class="btn amb" onclick="joinRoom()">BEITRETEN</button>
+      <p class="stat" id="join-stat"></p>
+    </div>
+  </div>
+  <button class="back-btn" onclick="goHome()">← ZURÜCK</button>
+</div>
+
+<!-- CONNECTING -->
+<div id="screen-connecting" class="screen">
+  <div class="spinner"></div>
+  <h3>VERBINDE...</h3>
+  <p class="stat" id="conn-stat"></p>
+</div>
+
+<!-- UTTT -->
+<div id="screen-uttt" class="screen">
+  <div class="conn-bar">
+    <div class="conn-dot" id="uttt-dot"></div>
+    <span>VERBUNDEN</span>
+    <span class="leave-btn" onclick="confirmLeave()">VERLASSEN</span>
+  </div>
+  <div><h2 style="text-align:center">ULTIMATE TIC TAC TOE</h2></div>
+  <div class="uttt-info">
+    <div class="uttt-badge x" id="badge-x">✕ SPIELER X</div>
+    <p class="stat" id="uttt-stat" style="min-width:200px"></p>
+    <div class="uttt-badge o" id="badge-o">○ SPIELER O</div>
+  </div>
+  <div class="outer-board" id="uttt-board"></div>
+  <div class="overlay" id="uttt-overlay">
+    <h2 id="uttt-win-text"></h2>
+    <button class="btn" onclick="restartUTTT()">NOCHMAL</button>
+    <button class="btn amb" onclick="confirmLeave()">VERLASSEN</button>
+  </div>
+</div>
+
+<!-- BS SETUP -->
+<div id="screen-bs-setup" class="screen">
+  <div class="conn-bar">
+    <div class="conn-dot" id="bss-dot"></div>
+    <span>VERBUNDEN</span>
+    <span class="leave-btn" onclick="confirmLeave()">VERLASSEN</span>
+  </div>
+  <div><h2 style="text-align:center">SCHIFFE AUFSTELLEN</h2></div>
+  <p class="stat" id="setup-stat">Wähle ein Schiff und klicke auf das Feld</p>
+  <div class="setup-wrap">
+    <div style="display:flex;flex-direction:column;gap:12px;">
+      <h3>SCHIFFE</h3>
+      <div id="ship-list" class="ship-list"></div>
+      <div class="setup-controls" style="margin-top:6px;">
+        <button class="btn blu" id="orient-btn" onclick="toggleOrient()">— HORIZONTAL</button>
+        <button class="btn" style="font-size:1rem;padding:6px 16px;" onclick="clearShips()">ZURÜCKSETZEN</button>
+        <button class="btn" id="ready-btn" onclick="bsReady()" disabled>BEREIT !</button>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:8px;align-items:center;">
+      <p style="font-family:'VT323',monospace;font-size:1.4rem;letter-spacing:2px;">MEIN FELD</p>
+      <div class="bs-grid" id="setup-grid"></div>
+    </div>
+  </div>
+</div>
+
+<!-- BS GAME -->
+<div id="screen-bs-game" class="screen">
+  <div class="conn-bar">
+    <div class="conn-dot" id="bsg-dot"></div>
+    <span>VERBUNDEN</span>
+    <span class="leave-btn" onclick="confirmLeave()">VERLASSEN</span>
+  </div>
+  <div><h2 style="text-align:center">SCHIFFE VERSENKEN</h2></div>
+  <p class="stat" id="bsg-stat"></p>
+  <div class="bs-boards">
+    <div class="bs-wrap">
+      <p class="bs-title" style="color:var(--b)">MEIN FELD</p>
+      <div class="bs-grid" id="my-board"></div>
+      <div id="my-ships" class="bs-ship-status"></div>
+    </div>
+    <div class="bs-wrap">
+      <p class="bs-title" style="color:var(--a)">GEGNER</p>
+      <div class="bs-grid" id="opp-board"></div>
+      <div id="opp-ships" class="bs-ship-status"></div>
+    </div>
+  </div>
+  <div class="overlay" id="bs-overlay">
+    <h2 id="bs-win-text"></h2>
+    <button class="btn" onclick="restartBS()">NOCHMAL</button>
+    <button class="btn amb" onclick="confirmLeave()">VERLASSEN</button>
+  </div>
+</div>
+
+</div><!-- #app -->
+
+<script>
+// ═══════════════════════════════════════════
+//  APP STATE
+// ═══════════════════════════════════════════
+const app = { screen:'home', game:null, role:null, peer:null, conn:null, code:'' };
+
+function showScreen(name){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  const el = document.getElementById('screen-'+name);
+  if(el){ el.classList.add('active'); app.screen = name; }
+}
+
+function goHome(){ cleanup(); showScreen('home'); }
+
+function selectGame(g){
+  app.game = g;
+  document.getElementById('lobby-title').textContent = g==='uttt'?'ULTIMATE TIC TAC TOE':'SCHIFFE VERSENKEN';
+  document.getElementById('code-box').style.display = 'none';
+  document.getElementById('join-input').value = '';
+  document.getElementById('join-stat').textContent = '';
+  document.getElementById('host-stat').innerHTML = 'Warte auf Gegner<span class="blink">_</span>';
+  showScreen('lobby');
+}
+
+function confirmLeave(){
+  if(confirm('Spiel verlassen?')){ cleanup(); showScreen('home'); }
+}
+
+// ═══════════════════════════════════════════
+//  PEER / NETWORK
+// ═══════════════════════════════════════════
+const PREFIX = 'arc24-';
+
+function genCode(){
+  const C='ABCDEFGHJKLMNPQRSTUVWXYZ';
+  return Array.from({length:6},()=>C[Math.floor(Math.random()*C.length)]).join('');
+}
+
+function cleanup(){
+  if(app.conn){ try{app.conn.close();}catch(e){} app.conn=null; }
+  if(app.peer){ try{app.peer.destroy();}catch(e){} app.peer=null; }
+  app.role=null; app.code='';
+}
+
+function createRoom(){
+  cleanup(); app.role='host';
+  const code = genCode();
+  const pid = PREFIX+code;
+  app.code = code;
+  app.peer = new Peer(pid);
+  app.peer.on('open',()=>{
+    document.getElementById('room-code-display').textContent = code;
+    document.getElementById('code-box').style.display = 'flex';
+  });
+  app.peer.on('connection',conn=>{
+    if(app.conn){ conn.close(); return; }
+    app.conn = conn;
+    setupConn(conn);
+    document.getElementById('host-stat').textContent = 'Verbunden!';
+  });
+  app.peer.on('error',err=>{
+    const s = document.getElementById('host-stat');
+    s.textContent='Fehler: '+(err.type||err.message);
+    s.className='stat err';
+    if(err.type==='unavailable-id'){ cleanup(); createRoom(); }
+  });
+}
+
+function joinRoom(){
+  const code = document.getElementById('join-input').value.trim().toUpperCase();
+  if(code.length < 2){ setJoinStat('Code zu kurz','err'); return; }
+  setJoinStat('Verbinde...','');
+  cleanup(); app.role='guest'; app.code=code;
+  app.peer = new Peer();
+  app.peer.on('open',()=>{
+    app.conn = app.peer.connect(PREFIX+code,{reliable:true});
+    app.conn.on('open',()=>{
+      setJoinStat('Verbunden!','ok');
+      setupConn(app.conn);
+      send({type:'hello',game:app.game});
+    });
+    app.conn.on('error',()=>setJoinStat('Verbindungsfehler','err'));
+  });
+  app.peer.on('error',err=>setJoinStat('Fehler: '+(err.type||err.message),'err'));
+}
+
+function setJoinStat(msg,cls){
+  const el = document.getElementById('join-stat');
+  el.textContent = msg; el.className = 'stat '+(cls||'');
+}
+
+function send(msg){ if(app.conn&&app.conn.open) app.conn.send(msg); }
+
+function setupConn(conn){
+  conn.on('data',onMsg);
+  conn.on('close',()=>{ alert('Gegner hat die Verbindung getrennt.'); goHome(); });
+  conn.on('error',e=>console.error('conn:',e));
+}
+
+function copyCode(){
+  navigator.clipboard.writeText(app.code).then(()=>{
+    const btn=document.querySelectorAll('#code-box .btn')[0];
+    btn.textContent='KOPIERT!';
+    setTimeout(()=>btn.textContent='KOPIEREN',2000);
+  });
+}
+
+// ═══════════════════════════════════════════
+//  MESSAGE ROUTER
+// ═══════════════════════════════════════════
+function onMsg(m){
+  switch(m.type){
+    case 'hello':      onHello(m); break;
+    case 'start':      onStart(m); break;
+    case 'uttt_move':  onUMove(m); break;
+    case 'uttt_rst':   initUTTT(); break;
+    case 'bs_ready':   onBSReady(); break;
+    case 'bs_shot':    onBSShot(m); break;
+    case 'bs_result':  onBSResult(m); break;
+    case 'bs_rst':     startBSSetup(); break;
+  }
+}
+
+function onHello(m){
+  if(m.game!==app.game){
+    send({type:'err',msg:'Falsches Spiel'}); return;
+  }
+  send({type:'start',game:app.game});
+  startGame();
+}
+
+function onStart(m){
+  app.game = m.game;
+  startGame();
+}
+
+function startGame(){
+  if(app.game==='uttt') initUTTT();
+  else startBSSetup();
+}
+
+// ═══════════════════════════════════════════
+//  ULTIMATE TIC TAC TOE
+// ═══════════════════════════════════════════
+const U = {
+  boards: [], boardWin: [], active:-1,
+  cur:'X', winner:null, mySym:null
+};
+
+function initUTTT(){
+  U.mySym = app.role==='host' ? 'X' : 'O';
+  U.boards = Array(9).fill(null).map(()=>Array(9).fill(null));
+  U.boardWin = Array(9).fill(null);
+  U.active = -1;
+  U.cur = 'X';
+  U.winner = null;
+  document.getElementById('uttt-overlay').classList.remove('show');
+  showScreen('uttt');
+  renderU();
+}
+
+function renderU(){
+  const board = document.getElementById('uttt-board');
+  board.innerHTML = '';
+  const myTurn = U.cur===U.mySym && !U.winner;
+
+  // badges
+  const bx=document.getElementById('badge-x'), bo=document.getElementById('badge-o');
+  bx.className='uttt-badge x'+(U.cur==='X'?' cur':'');
+  bo.className='uttt-badge o'+(U.cur==='O'?' cur':'');
+  bx.textContent = U.mySym==='X' ? '✕ DU' : '✕ GEGNER';
+  bo.textContent = U.mySym==='O' ? '○ DU' : '○ GEGNER';
+
+  const statEl = document.getElementById('uttt-stat');
+  if(!U.winner){
+    statEl.textContent = myTurn ? '→ DU BIST DRAN' : '→ GEGNER AM ZUG';
+    statEl.className = 'stat'+(myTurn?' ok':'');
+  }
+
+  for(let bi=0;bi<9;bi++){
+    const sb = document.createElement('div');
+    sb.className = 'small-board';
+    const bw = U.boardWin[bi];
+    const canBoard = (U.active===-1||U.active===bi) && !bw && !U.winner;
+    if(bw){ sb.classList.add('w'+bw.toLowerCase()); }
+    else if(canBoard){ sb.classList.add('active'); }
+
+    if(bw){
+      const wd=document.createElement('div');
+      wd.className='board-win '+(bw==='draw'?'d':bw.toLowerCase());
+      wd.textContent=bw==='X'?'✕':bw==='O'?'○':'▪';
+      sb.appendChild(wd);
+    }
+
+    for(let ci=0;ci<9;ci++){
+      const cell=document.createElement('div');
+      cell.className='ucell';
+      const v=U.boards[bi][ci];
+      if(v){
+        cell.classList.add(v.toLowerCase(),'taken');
+        cell.textContent=v==='X'?'✕':'○';
+      } else {
+        if(myTurn && canBoard && !bw){
+          cell.classList.add('clickable');
+          cell.onclick=()=>makeUMove(bi,ci);
+        } else {
+          cell.classList.add('locked');
+        }
+      }
+      sb.appendChild(cell);
+    }
+    board.appendChild(sb);
+  }
+}
+
+function makeUMove(bi,ci){
+  if(U.cur!==U.mySym||U.boards[bi][ci]||U.winner) return;
+  if(U.active!==-1&&U.active!==bi) return;
+  applyUMove(bi,ci,U.mySym);
+  send({type:'uttt_move',bi,ci});
+}
+
+function onUMove(m){ applyUMove(m.bi,m.ci,U.mySym==='X'?'O':'X'); }
+
+function applyUMove(bi,ci,player){
+  U.boards[bi][ci]=player;
+  if(!U.boardWin[bi]) U.boardWin[bi]=checkLines(U.boards[bi]);
+  const nb=ci;
+  U.active=(!U.boardWin[nb]&&U.boards[nb].some(c=>c===null))?nb:-1;
+  U.cur=U.cur==='X'?'O':'X';
+  const wmap=U.boardWin.map(w=>w==='draw'?null:w);
+  U.winner=checkLines(wmap);
+  if(!U.winner&&U.boardWin.every(w=>w!==null)) U.winner='draw';
+  renderU();
+  if(U.winner) showUWin();
+}
+
+function checkLines(cells){
+  const L=[[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+  for(const [a,b,c] of L){ if(cells[a]&&cells[a]===cells[b]&&cells[a]===cells[c]) return cells[a]; }
+  if(cells.every(c=>c!==null)) return 'draw';
+  return null;
+}
+
+function showUWin(){
+  const t=document.getElementById('uttt-win-text');
+  if(U.winner==='draw'){t.textContent='UNENTSCHIEDEN!';t.style.color='#888';}
+  else if(U.winner===U.mySym){t.textContent='DU GEWINNST! 🎉';t.style.color='var(--g)';}
+  else{t.textContent='DU VERLIERST!';t.style.color='var(--r)';}
+  document.getElementById('uttt-overlay').classList.add('show');
+}
+
+function restartUTTT(){ send({type:'uttt_rst'}); initUTTT(); }
+
+// ═══════════════════════════════════════════
+//  BATTLESHIP
+// ═══════════════════════════════════════════
+const SHIPS=[
+  {id:'carrier',   name:'Träger',         sz:5},
+  {id:'battle',    name:'Schlachtschiff', sz:4},
+  {id:'cruiser',   name:'Kreuzer',        sz:3},
+  {id:'sub',       name:'U-Boot',         sz:3},
+  {id:'destroyer', name:'Zerstörer',      sz:2},
+];
+
+const BS={
+  myBoard:[], myHits:[], shotBoard:[], placed:[],
+  selId:null, orient:'H', myTurn:false,
+  myReady:false, oppReady:false,
+  sunkByOpp:[], sunkByMe:[], winner:null, phase:'setup'
+};
+
+function startBSSetup(){
+  BS.myBoard=mk10(); BS.myHits=mk10(); BS.shotBoard=mk10();
+  BS.placed=[]; BS.selId=SHIPS[0].id; BS.orient='H';
+  BS.myTurn=app.role==='host'; // host goes first
+  BS.myReady=false; BS.oppReady=false;
+  BS.sunkByOpp=[]; BS.sunkByMe=[]; BS.winner=null; BS.phase='setup';
+  document.getElementById('bs-overlay').classList.remove('show');
+  document.getElementById('ready-btn').disabled=true;
+  document.getElementById('setup-stat').textContent='Wähle ein Schiff und klicke auf das Feld';
+  renderShipList();
+  renderSetupGrid();
+  updateOrientBtn();
+  showScreen('bs-setup');
+}
+
+function mk10(){ return Array(10).fill(null).map(()=>Array(10).fill(null)); }
+
+function renderShipList(){
+  const list=document.getElementById('ship-list');
+  list.innerHTML='';
+  for(const s of SHIPS){
+    const p=BS.placed.find(x=>x.id===s.id);
+    const div=document.createElement('div');
+    div.className='ship-item'+(p?' placed':'')+(BS.selId===s.id&&!p?' sel':'');
+    div.innerHTML=`<span>${s.name} (${s.sz})</span><div class="ship-pip-row">${Array(s.sz).fill('<div class="ship-pip"></div>').join('')}</div>`;
+    if(!p) div.onclick=()=>{ BS.selId=s.id; renderShipList(); };
+    list.appendChild(div);
+  }
+}
+
+function updateOrientBtn(){
+  document.getElementById('orient-btn').textContent=BS.orient==='H'?'— HORIZONTAL':'| VERTIKAL';
+}
+
+function toggleOrient(){ BS.orient=BS.orient==='H'?'V':'H'; updateOrientBtn(); }
+
+function shipCells(r,c,sz,orient){
+  return Array.from({length:sz},(_,i)=>orient==='H'?{r,c:c+i}:{r:r+i,c});
+}
+
+function validPlacement(cells){
+  for(const{r,c}of cells){
+    if(r<0||r>=10||c<0||c>=10) return false;
+    if(BS.myBoard[r][c]) return false;
+    for(let dr=-1;dr<=1;dr++) for(let dc=-1;dc<=1;dc++){
+      const nr=r+dr,nc=c+dc;
+      if(nr>=0&&nr<10&&nc>=0&&nc<10&&BS.myBoard[nr][nc]) return false;
+    }
+  }
+  return true;
+}
+
+function renderSetupGrid(hoverR,hoverC){
+  const grid=document.getElementById('setup-grid');
+  // On first render, build structure; on hover, just update classes
+  const rebuild = grid.children.length === 0;
+  
+  if(rebuild){
+    grid.innerHTML='';
+    grid.appendChild(mk('div','bs-hdr',''));
+    for(let c=0;c<10;c++) grid.appendChild(mk('div','bs-hdr',String.fromCharCode(65+c)));
+    for(let r=0;r<10;r++){
+      grid.appendChild(mk('div','bs-hdr',String(r+1)));
+      for(let c=0;c<10;c++){
+        const cell=mk('div','bcell','');
+        cell.dataset.r=r; cell.dataset.c=c;
+        grid.appendChild(cell);
+      }
+    }
+    // Event delegation
+    grid.addEventListener('mousemove',e=>{
+      const t=e.target.closest('.bcell[data-r]');
+      if(t) renderSetupGrid(+t.dataset.r,+t.dataset.c);
+    });
+    grid.addEventListener('mouseleave',()=>clearPrev(grid));
+    grid.addEventListener('click',e=>{
+      const t=e.target.closest('.bcell[data-r]');
+      if(t) placeShip(+t.dataset.r,+t.dataset.c);
+    });
+  }
+
+  // Update all cells
+  const sel=BS.selId&&!BS.placed.find(p=>p.id===BS.selId)?SHIPS.find(s=>s.id===BS.selId):null;
+  let prevSet=new Set(), prevValid=false;
+  if(sel&&hoverR!=null){
+    const cells=shipCells(hoverR,hoverC,sel.sz,BS.orient);
+    prevValid=validPlacement(cells);
+    cells.forEach(({r,c})=>prevSet.add(r+','+c));
+  }
+
+  grid.querySelectorAll('.bcell[data-r]').forEach(cell=>{
+    const r=+cell.dataset.r,c=+cell.dataset.c;
+    const key=r+','+c;
+    cell.className='bcell';
+    if(BS.myBoard[r][c]) cell.classList.add('ship');
+    else if(prevSet.has(key)){ cell.classList.add('prev'); if(!prevValid) cell.classList.add('inv'); }
+  });
+}
+
+function clearPrev(grid){
+  grid.querySelectorAll('.bcell.prev,.bcell.inv').forEach(c=>{
+    c.classList.remove('prev','inv');
+  });
+}
+
+function placeShip(r,c){
+  if(!BS.selId) return;
+  const ship=SHIPS.find(s=>s.id===BS.selId);
+  if(!ship||BS.placed.find(p=>p.id===ship.id)) return;
+  const cells=shipCells(r,c,ship.sz,BS.orient);
+  if(!validPlacement(cells)) return;
+  cells.forEach(({r:sr,c:sc})=>BS.myBoard[sr][sc]=ship.id);
+  BS.placed.push({...ship,cells,sunk:false});
+  const next=SHIPS.find(s=>!BS.placed.find(p=>p.id===s.id));
+  BS.selId=next?next.id:null;
+  const done=SHIPS.every(s=>BS.placed.find(p=>p.id===s.id));
+  document.getElementById('ready-btn').disabled=!done;
+  if(done) document.getElementById('setup-stat').textContent='Alle Schiffe platziert — bereit?';
+  renderShipList();
+  renderSetupGrid();
+}
+
+function clearShips(){
+  BS.myBoard=mk10(); BS.placed=[]; BS.selId=SHIPS[0].id;
+  document.getElementById('ready-btn').disabled=true;
+  document.getElementById('setup-stat').textContent='Wähle ein Schiff und klicke auf das Feld';
+  renderShipList(); renderSetupGrid();
+}
+
+function bsReady(){
+  BS.myReady=true;
+  document.getElementById('ready-btn').disabled=true;
+  document.getElementById('setup-stat').textContent='Warte auf Gegner...';
+  send({type:'bs_ready'});
+  if(BS.oppReady) startBSGame();
+}
+
+function onBSReady(){
+  BS.oppReady=true;
+  if(BS.myReady) startBSGame();
+  else document.getElementById('setup-stat').textContent='Gegner ist bereit. Warte auf dich...';
+}
+
+function startBSGame(){
+  BS.phase='playing';
+  showScreen('bs-game');
+  renderBSGame();
+  updateBSStat();
+}
+
+// ── Rendering ──────────────────────────────
+
+function renderBSGame(){
+  renderMyBoard();
+  renderOppBoard();
+  renderBSStatus();
+}
+
+function renderMyBoard(){
+  const grid=document.getElementById('my-board');
+  grid.innerHTML='';
+  grid.appendChild(mk('div','bs-hdr',''));
+  for(let c=0;c<10;c++) grid.appendChild(mk('div','bs-hdr',String.fromCharCode(65+c)));
+  for(let r=0;r<10;r++){
+    grid.appendChild(mk('div','bs-hdr',String(r+1)));
+    for(let c=0;c<10;c++){
+      const cell=mk('div','bcell','');
+      const sid=BS.myBoard[r][c];
+      const hit=BS.myHits[r][c];
+      if(hit==='hit'){ cell.classList.add('hit'); cell.textContent='✕'; }
+      else if(hit==='miss'){ cell.classList.add('miss'); cell.textContent='·'; }
+      else if(sid){
+        const s=BS.placed.find(x=>x.id===sid);
+        cell.classList.add(s&&s.sunk?'sunk':'ship');
+        if(s&&s.sunk) cell.textContent='▪';
+      }
+      grid.appendChild(cell);
+    }
+  }
+}
+
+function renderOppBoard(){
+  const grid=document.getElementById('opp-board');
+  grid.innerHTML='';
+  grid.appendChild(mk('div','bs-hdr',''));
+  for(let c=0;c<10;c++) grid.appendChild(mk('div','bs-hdr',String.fromCharCode(65+c)));
+  for(let r=0;r<10;r++){
+    grid.appendChild(mk('div','bs-hdr',String(r+1)));
+    for(let c=0;c<10;c++){
+      const cell=mk('div','bcell','');
+      const s=BS.shotBoard[r][c];
+      if(s==='hit'){ cell.classList.add('hit'); cell.textContent='✕'; }
+      else if(s==='miss'){ cell.classList.add('miss'); cell.textContent='·'; }
+      else if(s==='sunk'){ cell.classList.add('sunk'); cell.textContent='✕'; }
+      else if(s==='pending'){ cell.classList.add('pending'); cell.textContent='?'; }
+      else if(BS.myTurn&&BS.phase==='playing'){
+        cell.classList.add('tgt');
+        const fr=r,fc=c;
+        cell.onclick=()=>shoot(fr,fc);
+      }
+      grid.appendChild(cell);
+    }
+  }
+}
+
+function renderBSStatus(){
+  // My ships
+  const my=document.getElementById('my-ships');
+  my.innerHTML='<div class="bs-label" style="color:var(--b)">MEINE SCHIFFE</div>';
+  for(const s of BS.placed){
+    const d=mk('div','bs-ship-row'+(s.sunk?' sunk':''),'');
+    d.innerHTML=`<span>${s.name}</span><span>${s.sunk?'VERSENKT':'▓'.repeat(s.sz)}</span>`;
+    my.appendChild(d);
+  }
+  // Opp ships
+  const op=document.getElementById('opp-ships');
+  op.innerHTML='<div class="bs-label" style="color:var(--a)">GEGNER</div>';
+  for(const s of SHIPS){
+    const gone=BS.sunkByMe.includes(s.id);
+    const d=mk('div','bs-ship-row'+(gone?' sunk':''),'');
+    d.innerHTML=`<span>${s.name}</span><span>${gone?'VERSENKT':'░'.repeat(s.sz)}</span>`;
+    op.appendChild(d);
+  }
+}
+
+function updateBSStat(){
+  const el=document.getElementById('bsg-stat');
+  if(BS.phase!=='playing'){el.textContent='';return;}
+  el.textContent = BS.myTurn ? '→ DU BIST DRAN — KLICKE AUF DEN GEGNER' : '→ GEGNER AM ZUG...';
+  el.className = 'stat'+(BS.myTurn?' ok':'');
+}
+
+// ── Game logic ─────────────────────────────
+
+function shoot(r,c){
+  if(!BS.myTurn||BS.phase!=='playing') return;
+  if(BS.shotBoard[r][c]!==null) return;
+  BS.myTurn=false;
+  BS.shotBoard[r][c]='pending';
+  send({type:'bs_shot',r,c});
+  renderOppBoard();
+  updateBSStat();
+}
+
+function onBSShot(m){
+  const{r,c}=m;
+  const sid=BS.myBoard[r][c];
+  let result='miss', sunkId=null, sunkCells=null;
+  if(sid){
+    BS.myHits[r][c]='hit';
+    result='hit';
+    const ship=BS.placed.find(s=>s.id===sid);
+    if(ship){
+      const allHit=ship.cells.every(({r:sr,c:sc})=>BS.myHits[sr][sc]==='hit');
+      if(allHit){
+        ship.sunk=true; sunkId=ship.id; sunkCells=ship.cells; result='sunk';
+      }
+    }
+  } else {
+    BS.myHits[r][c]='miss';
+  }
+  const allSunk=BS.placed.every(s=>s.sunk);
+  send({type:'bs_result',r,c,result,sunkId,sunkCells,gameOver:allSunk});
+  renderMyBoard();
+  if(allSunk){
+    BS.phase='gameover'; BS.winner='opponent';
+    renderBSStatus();
+    showBSWin();
+  } else {
+    BS.sunkByOpp.push(sunkId);
+    BS.myTurn=true;
+    updateBSStat();
+    renderOppBoard();
+  }
+}
+
+function onBSResult(m){
+  const{r,c,result,sunkId,sunkCells,gameOver}=m;
+  if(result==='miss') BS.shotBoard[r][c]='miss';
+  else if(result==='hit') BS.shotBoard[r][c]='hit';
+  else if(result==='sunk'){
+    if(sunkCells) sunkCells.forEach(({r:sr,c:sc})=>BS.shotBoard[sr][sc]='sunk');
+    else BS.shotBoard[r][c]='sunk';
+    if(sunkId) BS.sunkByMe.push(sunkId);
+  }
+  if(gameOver){
+    BS.phase='gameover'; BS.winner='me';
+    renderBSGame(); showBSWin();
+  } else {
+    BS.myTurn=false; // opponent's turn now
+    renderBSGame(); updateBSStat();
+  }
+}
+
+function showBSWin(){
+  const t=document.getElementById('bs-win-text');
+  if(BS.winner==='me'){t.textContent='DU GEWINNST! 🎉';t.style.color='var(--g)';}
+  else{t.textContent='DU VERLIERST!';t.style.color='var(--r)';}
+  document.getElementById('bs-overlay').classList.add('show');
+}
+
+function restartBS(){ send({type:'bs_rst'}); startBSSetup(); }
+
+// ═══════════════════════════════════════════
+//  UTILS
+// ═══════════════════════════════════════════
+function mk(tag,cls,text){
+  const el=document.createElement(tag);
+  el.className=cls; el.textContent=text; return el;
+}
+</script>
+</body>
+</html>
