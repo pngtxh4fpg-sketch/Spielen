@@ -8,11 +8,7 @@
 <link href="https://fonts.googleapis.com/css2?family=VT323&family=Share+Tech+Mono&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0;}
-:root{
-  --g:#00ff41;--a:#ff9500;--b:#00aaff;--r:#ff3333;
-  --bg:#07090f;--bg2:#0d1117;--bd:#1a2633;
-  --gdim:rgba(0,255,65,.18);--adim:rgba(255,149,0,.18);
-}
+:root{--g:#00ff41;--a:#ff9500;--b:#00aaff;--r:#ff3333;--bg:#07090f;--bg2:#0d1117;--bd:#1a2633;}
 body{background:var(--bg);color:var(--g);font-family:'Share Tech Mono',monospace;min-height:100vh;overflow-x:hidden;}
 body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.06) 2px,rgba(0,0,0,.06) 4px);pointer-events:none;z-index:9999;}
 @keyframes flicker{0%{opacity:.9}5%{opacity:.8}10%{opacity:.95}20%{opacity:1}}
@@ -42,39 +38,29 @@ input[type=text]:focus{border-color:var(--a);box-shadow:0 0 10px rgba(255,149,0,
 .blink{animation:blink 1s step-end infinite;}
 .conn-bar{position:fixed;top:0;left:0;right:0;padding:4px 14px;background:var(--bg2);border-bottom:1px solid var(--bd);display:flex;align-items:center;gap:10px;font-size:.75rem;color:rgba(0,255,65,.45);z-index:50;}
 .conn-dot{width:8px;height:8px;border-radius:50%;background:var(--g);box-shadow:0 0 6px var(--g);}
-.conn-dot.off{background:var(--r);box-shadow:0 0 6px var(--r);}
 .leave-btn{margin-left:auto;cursor:pointer;color:rgba(0,255,65,.35);}
 .leave-btn:hover{color:var(--g);}
 .back-btn{position:fixed;bottom:20px;left:20px;background:none;border:none;color:rgba(0,255,65,.35);cursor:pointer;font-family:'Share Tech Mono',monospace;font-size:.85rem;}
 .back-btn:hover{color:var(--g);}
-
 /* HOME */
 #screen-home{gap:50px;padding:40px;text-align:center;}
 .home-sub{color:rgba(0,255,65,.4);font-size:.8rem;letter-spacing:4px;margin-top:8px;}
-.game-cards{display:flex;gap:40px;flex-wrap:wrap;justify-content:center;}
-.game-card{border:1px solid var(--bd);padding:40px 50px;cursor:pointer;transition:all .2s;background:var(--bg2);min-width:280px;}
+.game-cards{display:flex;gap:30px;flex-wrap:wrap;justify-content:center;}
+.game-card{border:1px solid var(--bd);padding:36px 44px;cursor:pointer;transition:all .2s;background:var(--bg2);min-width:240px;}
 .game-card:hover{border-color:var(--g);box-shadow:0 0 25px rgba(0,255,65,.15);transform:translateY(-4px);}
-.game-card .ico{font-size:4rem;display:block;margin-bottom:14px;}
-.game-card h2{margin-bottom:10px;}
+.game-card .ico{font-size:3.5rem;display:block;margin-bottom:12px;}
+.game-card h2{margin-bottom:8px;}
 .game-card p{color:rgba(0,255,65,.45);font-size:.82rem;max-width:200px;margin:0 auto;}
-
 /* LOBBY */
 #screen-lobby{gap:40px;padding:40px;}
 .lobby-panels{display:flex;gap:40px;flex-wrap:wrap;justify-content:center;}
 .lobby-panel{border:1px solid var(--bd);background:var(--bg2);padding:30px;text-align:center;min-width:250px;display:flex;flex-direction:column;gap:14px;align-items:center;}
 .room-code{font-family:'VT323',monospace;font-size:3rem;color:var(--a);letter-spacing:8px;text-shadow:0 0 12px var(--a);border:1px dashed rgba(255,149,0,.4);padding:10px 20px;}
 .peer-note{font-size:.7rem;color:rgba(0,255,65,.3);max-width:240px;line-height:1.5;}
-
-/* CONNECTING */
-#screen-connecting{gap:30px;text-align:center;}
-@keyframes spin{to{transform:rotate(360deg)}}
-.spinner{width:60px;height:60px;border:3px solid var(--bd);border-top-color:var(--g);border-radius:50%;animation:spin 1s linear infinite;}
-
 /* OVERLAY */
 .overlay{position:fixed;inset:0;background:rgba(0,0,0,.85);display:none;align-items:center;justify-content:center;z-index:100;flex-direction:column;gap:28px;}
 .overlay.show{display:flex;}
 .overlay h2{font-size:4.5rem;}
-
 /* UTTT */
 #screen-uttt{gap:18px;padding:70px 20px 20px;flex-direction:column;align-items:center;justify-content:flex-start;}
 .uttt-info{display:flex;gap:24px;align-items:center;flex-wrap:wrap;justify-content:center;}
@@ -92,12 +78,36 @@ input[type=text]:focus{border-color:var(--a);box-shadow:0 0 10px rgba(255,149,0,
 .board-win.x{color:var(--g);text-shadow:0 0 12px var(--g);}
 .board-win.o{color:var(--a);text-shadow:0 0 12px var(--a);}
 .board-win.d{color:#444;font-size:1.5rem;}
-.ucell{width:46px;height:46px;display:flex;align-items:center;justify-content:center;font-family:'VT323',monospace;font-size:1.9rem;border:1px solid rgba(26,38,51,.8);cursor:pointer;position:relative;z-index:2;transition:background .1s,border-color .1s;}
+.ucell{width:46px;height:46px;display:flex;align-items:center;justify-content:center;font-family:'VT323',monospace;font-size:1.9rem;border:1px solid rgba(26,38,51,.8);cursor:default;position:relative;z-index:2;transition:background .1s,border-color .1s;}
 .ucell.x{color:var(--g);}
 .ucell.o{color:var(--a);}
-.ucell.clickable:hover{background:rgba(0,170,255,.1);border-color:rgba(0,170,255,.4);}
-.ucell.taken,.ucell.locked{cursor:default;}
-
+.ucell.clickable:hover{background:rgba(0,170,255,.1);border-color:rgba(0,170,255,.4);cursor:pointer;}
+/* UUTTT */
+#screen-uuttt{gap:14px;padding:68px 20px 20px;flex-direction:column;align-items:center;justify-content:flex-start;overflow-y:auto;}
+.outer-meta{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;border:2px solid var(--g);padding:6px;background:var(--bg2);box-shadow:0 0 20px rgba(0,255,65,.1);}
+.meta-board{display:grid;grid-template-columns:repeat(3,1fr);gap:3px;padding:3px;border:1px solid var(--bd);position:relative;transition:border-color .2s,box-shadow .2s;}
+.meta-board.active{border-color:var(--a);box-shadow:inset 0 0 10px rgba(255,149,0,.12);}
+.meta-board.wx{background:rgba(0,255,65,.06);border-color:rgba(0,255,65,.4);}
+.meta-board.wo{background:rgba(255,149,0,.06);border-color:rgba(255,149,0,.4);}
+.meta-board.wd{background:rgba(60,60,60,.04);border-color:#1e1e1e;}
+.meta-win{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:'VT323',monospace;font-size:3.8rem;pointer-events:none;z-index:3;}
+.meta-win.x{color:var(--g);text-shadow:0 0 10px var(--g);}
+.meta-win.o{color:var(--a);text-shadow:0 0 10px var(--a);}
+.meta-win.d{color:#2a2a2a;font-size:.9rem;}
+.uu-sb{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;padding:2px;border:1px solid rgba(26,38,51,.7);position:relative;transition:border-color .2s;}
+.uu-sb.active{border-color:var(--b);box-shadow:inset 0 0 5px rgba(0,170,255,.2);}
+.uu-sb.wx{background:rgba(0,255,65,.09);border-color:rgba(0,255,65,.3);}
+.uu-sb.wo{background:rgba(255,149,0,.09);border-color:rgba(255,149,0,.3);}
+.uu-sb.wd{background:rgba(40,40,40,.05);border-color:#1a1a1a;}
+.uu-sbwin{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:'VT323',monospace;font-size:2.2rem;pointer-events:none;z-index:2;}
+.uu-sbwin.x{color:var(--g);}
+.uu-sbwin.o{color:var(--a);}
+.uu-sbwin.d{color:#2a2a2a;font-size:.55rem;}
+.uucell{width:14px;height:14px;display:flex;align-items:center;justify-content:center;font-family:'VT323',monospace;font-size:.6rem;border:1px solid rgba(26,38,51,.4);cursor:default;position:relative;z-index:1;transition:background .08s;}
+.uucell.x{color:var(--g);}
+.uucell.o{color:var(--a);}
+.uucell.clickable{cursor:pointer;}
+.uucell.clickable:hover{background:rgba(0,170,255,.2);border-color:rgba(0,170,255,.6);}
 /* BS SETUP */
 #screen-bs-setup{flex-direction:column;gap:18px;padding:70px 20px 20px;align-items:center;justify-content:flex-start;}
 .setup-wrap{display:flex;gap:30px;flex-wrap:wrap;justify-content:center;align-items:flex-start;}
@@ -109,8 +119,7 @@ input[type=text]:focus{border-color:var(--a);box-shadow:0 0 10px rgba(255,149,0,
 .ship-pip-row{display:flex;gap:2px;}
 .ship-pip{width:11px;height:11px;background:currentColor;opacity:.7;}
 .setup-controls{display:flex;flex-direction:column;gap:8px;}
-
-/* BS BOARDS */
+/* BS GAME */
 #screen-bs-game{flex-direction:column;gap:14px;padding:65px 20px 20px;align-items:center;justify-content:flex-start;}
 .bs-boards{display:flex;gap:30px;flex-wrap:wrap;justify-content:center;align-items:flex-start;}
 .bs-wrap{display:flex;flex-direction:column;gap:8px;align-items:center;}
@@ -131,11 +140,10 @@ input[type=text]:focus{border-color:var(--a);box-shadow:0 0 10px rgba(255,149,0,
 .bs-ship-row{display:flex;justify-content:space-between;padding:2px 0;border-bottom:1px solid rgba(26,38,51,.5);}
 .bs-ship-row.sunk{color:var(--r);text-decoration:line-through;}
 .bs-label{font-size:.75rem;margin-bottom:4px;letter-spacing:1px;}
-
 /* Responsive */
-@media(max-width:500px){
+@media(max-width:600px){
   h1{font-size:3rem;}
-  .game-card{padding:25px 30px;min-width:200px;}
+  .game-card{padding:22px 28px;min-width:150px;}
   .ucell{width:30px;height:30px;font-size:1.3rem;}
   .outer-board{gap:5px;padding:5px;}
   .small-board{gap:2px;padding:2px;}
@@ -143,6 +151,9 @@ input[type=text]:focus{border-color:var(--a);box-shadow:0 0 10px rgba(255,149,0,
   .bcell{width:26px;height:26px;font-size:.9rem;}
   .bs-grid{grid-template-columns:14px repeat(10,26px);grid-template-rows:14px repeat(10,26px);}
   .lobby-panels{flex-direction:column;}
+  .outer-meta{gap:4px;padding:4px;}
+  .meta-board{gap:2px;padding:2px;}
+  .uucell{width:11px;height:11px;}
 }
 </style>
 </head>
@@ -160,6 +171,11 @@ input[type=text]:focus{border-color:var(--a);box-shadow:0 0 10px rgba(255,149,0,
       <span class="ico">⊞</span>
       <h2>ULTIMATE TTT</h2>
       <p>Tic Tac Toe² — gewinne 3 Boards in einer Reihe</p>
+    </div>
+    <div class="game-card" onclick="selectGame('uuttt')">
+      <span class="ico">⊞²</span>
+      <h2>ULTIMATE² TTT</h2>
+      <p>TTT³ — 3 Ebenen, 729 Felder, ein Sieger</p>
     </div>
     <div class="game-card" onclick="selectGame('battleship')">
       <span class="ico">⚓</span>
@@ -191,28 +207,20 @@ input[type=text]:focus{border-color:var(--a);box-shadow:0 0 10px rgba(255,149,0,
       <p class="stat" id="join-stat"></p>
     </div>
   </div>
-  <button class="back-btn" onclick="goHome()">← ZURÜCK</button>
-</div>
-
-<!-- CONNECTING -->
-<div id="screen-connecting" class="screen">
-  <div class="spinner"></div>
-  <h3>VERBINDE...</h3>
-  <p class="stat" id="conn-stat"></p>
+  <button class="back-btn" onclick="goHome()">&#8592; ZURÜCK</button>
 </div>
 
 <!-- UTTT -->
 <div id="screen-uttt" class="screen">
   <div class="conn-bar">
-    <div class="conn-dot" id="uttt-dot"></div>
-    <span>VERBUNDEN</span>
+    <div class="conn-dot"></div><span>VERBUNDEN</span>
     <span class="leave-btn" onclick="confirmLeave()">VERLASSEN</span>
   </div>
   <div><h2 style="text-align:center">ULTIMATE TIC TAC TOE</h2></div>
   <div class="uttt-info">
-    <div class="uttt-badge x" id="badge-x">✕ SPIELER X</div>
+    <div class="uttt-badge x" id="badge-x">&#10005; SPIELER X</div>
     <p class="stat" id="uttt-stat" style="min-width:200px"></p>
-    <div class="uttt-badge o" id="badge-o">○ SPIELER O</div>
+    <div class="uttt-badge o" id="badge-o">&#9675; SPIELER O</div>
   </div>
   <div class="outer-board" id="uttt-board"></div>
   <div class="overlay" id="uttt-overlay">
@@ -222,11 +230,33 @@ input[type=text]:focus{border-color:var(--a);box-shadow:0 0 10px rgba(255,149,0,
   </div>
 </div>
 
+<!-- ULTIMATE² TTT -->
+<div id="screen-uuttt" class="screen">
+  <div class="conn-bar">
+    <div class="conn-dot"></div><span>VERBUNDEN</span>
+    <span class="leave-btn" onclick="confirmLeave()">VERLASSEN</span>
+  </div>
+  <div><h2 style="text-align:center">ULTIMATE&#178; TIC TAC TOE</h2></div>
+  <div class="uttt-info">
+    <div class="uttt-badge x" id="uubadge-x">&#10005; SPIELER X</div>
+    <p class="stat" id="uuttt-stat" style="min-width:200px"></p>
+    <div class="uttt-badge o" id="uubadge-o">&#9675; SPIELER O</div>
+  </div>
+  <div style="font-size:.7rem;color:rgba(0,255,65,.35);letter-spacing:1px;text-align:center;max-width:520px;">
+    Orange = aktives Meta-Board &nbsp;|&nbsp; Blau = aktives Small-Board &nbsp;|&nbsp; Grün = gewonnenes Board
+  </div>
+  <div class="outer-meta" id="uuttt-board"></div>
+  <div class="overlay" id="uuttt-overlay">
+    <h2 id="uuttt-win-text"></h2>
+    <button class="btn" onclick="restartUUTTT()">NOCHMAL</button>
+    <button class="btn amb" onclick="confirmLeave()">VERLASSEN</button>
+  </div>
+</div>
+
 <!-- BS SETUP -->
 <div id="screen-bs-setup" class="screen">
   <div class="conn-bar">
-    <div class="conn-dot" id="bss-dot"></div>
-    <span>VERBUNDEN</span>
+    <div class="conn-dot"></div><span>VERBUNDEN</span>
     <span class="leave-btn" onclick="confirmLeave()">VERLASSEN</span>
   </div>
   <div><h2 style="text-align:center">SCHIFFE AUFSTELLEN</h2></div>
@@ -236,7 +266,7 @@ input[type=text]:focus{border-color:var(--a);box-shadow:0 0 10px rgba(255,149,0,
       <h3>SCHIFFE</h3>
       <div id="ship-list" class="ship-list"></div>
       <div class="setup-controls" style="margin-top:6px;">
-        <button class="btn blu" id="orient-btn" onclick="toggleOrient()">— HORIZONTAL</button>
+        <button class="btn blu" id="orient-btn" onclick="toggleOrient()">&#8212; HORIZONTAL</button>
         <button class="btn" style="font-size:1rem;padding:6px 16px;" onclick="clearShips()">ZURÜCKSETZEN</button>
         <button class="btn" id="ready-btn" onclick="bsReady()" disabled>BEREIT !</button>
       </div>
@@ -251,8 +281,7 @@ input[type=text]:focus{border-color:var(--a);box-shadow:0 0 10px rgba(255,149,0,
 <!-- BS GAME -->
 <div id="screen-bs-game" class="screen">
   <div class="conn-bar">
-    <div class="conn-dot" id="bsg-dot"></div>
-    <span>VERBUNDEN</span>
+    <div class="conn-dot"></div><span>VERBUNDEN</span>
     <span class="leave-btn" onclick="confirmLeave()">VERLASSEN</span>
   </div>
   <div><h2 style="text-align:center">SCHIFFE VERSENKEN</h2></div>
@@ -276,590 +305,486 @@ input[type=text]:focus{border-color:var(--a);box-shadow:0 0 10px rgba(255,149,0,
   </div>
 </div>
 
-</div><!-- #app -->
-
+</div>
 <script>
-// ═══════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════
 //  APP STATE
-// ═══════════════════════════════════════════
-const app = { screen:'home', game:null, role:null, peer:null, conn:null, code:'' };
+// ═══════════════════════════════════════════════════════════
+const app={screen:'home',game:null,role:null,peer:null,conn:null,code:''};
 
-function showScreen(name){
+function showScreen(n){
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
-  const el = document.getElementById('screen-'+name);
-  if(el){ el.classList.add('active'); app.screen = name; }
+  const el=document.getElementById('screen-'+n);
+  if(el){el.classList.add('active');app.screen=n;}
 }
-
-function goHome(){ cleanup(); showScreen('home'); }
-
+function goHome(){cleanup();showScreen('home');}
+function confirmLeave(){if(confirm('Spiel verlassen?')){cleanup();showScreen('home');}}
 function selectGame(g){
-  app.game = g;
-  document.getElementById('lobby-title').textContent = g==='uttt'?'ULTIMATE TIC TAC TOE':'SCHIFFE VERSENKEN';
-  document.getElementById('code-box').style.display = 'none';
-  document.getElementById('join-input').value = '';
-  document.getElementById('join-stat').textContent = '';
-  document.getElementById('host-stat').innerHTML = 'Warte auf Gegner<span class="blink">_</span>';
+  app.game=g;
+  const t={uttt:'ULTIMATE TIC TAC TOE',uuttt:'ULTIMATE\u00B2 TIC TAC TOE',battleship:'SCHIFFE VERSENKEN'};
+  document.getElementById('lobby-title').textContent=t[g]||g;
+  document.getElementById('code-box').style.display='none';
+  document.getElementById('join-input').value='';
+  document.getElementById('join-stat').textContent='';
+  document.getElementById('host-stat').innerHTML='Warte auf Gegner<span class="blink">_</span>';
   showScreen('lobby');
 }
 
-function confirmLeave(){
-  if(confirm('Spiel verlassen?')){ cleanup(); showScreen('home'); }
-}
-
-// ═══════════════════════════════════════════
-//  PEER / NETWORK
-// ═══════════════════════════════════════════
-const PREFIX = 'arc24-';
-
-function genCode(){
-  const C='ABCDEFGHJKLMNPQRSTUVWXYZ';
-  return Array.from({length:6},()=>C[Math.floor(Math.random()*C.length)]).join('');
-}
+// ═══════════════════════════════════════════════════════════
+//  NETWORK (PeerJS / WebRTC)
+// ═══════════════════════════════════════════════════════════
+const PFX='arc24-';
+function genCode(){const C='ABCDEFGHJKLMNPQRSTUVWXYZ';return Array.from({length:6},()=>C[Math.floor(Math.random()*C.length)]).join('');}
 
 function cleanup(){
-  if(app.conn){ try{app.conn.close();}catch(e){} app.conn=null; }
-  if(app.peer){ try{app.peer.destroy();}catch(e){} app.peer=null; }
+  if(app.conn){try{app.conn.close();}catch(e){} app.conn=null;}
+  if(app.peer){try{app.peer.destroy();}catch(e){} app.peer=null;}
   app.role=null; app.code='';
 }
-
-function createRoom(){
-  cleanup(); app.role='host';
-  const code = genCode();
-  const pid = PREFIX+code;
-  app.code = code;
-  app.peer = new Peer(pid);
-  app.peer.on('open',()=>{
-    document.getElementById('room-code-display').textContent = code;
-    document.getElementById('code-box').style.display = 'flex';
-  });
-  app.peer.on('connection',conn=>{
-    if(app.conn){ conn.close(); return; }
-    app.conn = conn;
-    setupConn(conn);
-    document.getElementById('host-stat').textContent = 'Verbunden!';
-  });
-  app.peer.on('error',err=>{
-    const s = document.getElementById('host-stat');
-    s.textContent='Fehler: '+(err.type||err.message);
-    s.className='stat err';
-    if(err.type==='unavailable-id'){ cleanup(); createRoom(); }
-  });
-}
-
-function joinRoom(){
-  const code = document.getElementById('join-input').value.trim().toUpperCase();
-  if(code.length < 2){ setJoinStat('Code zu kurz','err'); return; }
-  setJoinStat('Verbinde...','');
-  cleanup(); app.role='guest'; app.code=code;
-  app.peer = new Peer();
-  app.peer.on('open',()=>{
-    app.conn = app.peer.connect(PREFIX+code,{reliable:true});
-    app.conn.on('open',()=>{
-      setJoinStat('Verbunden!','ok');
-      setupConn(app.conn);
-      send({type:'hello',game:app.game});
-    });
-    app.conn.on('error',()=>setJoinStat('Verbindungsfehler','err'));
-  });
-  app.peer.on('error',err=>setJoinStat('Fehler: '+(err.type||err.message),'err'));
-}
-
-function setJoinStat(msg,cls){
-  const el = document.getElementById('join-stat');
-  el.textContent = msg; el.className = 'stat '+(cls||'');
-}
-
-function send(msg){ if(app.conn&&app.conn.open) app.conn.send(msg); }
-
+function send(m){if(app.conn&&app.conn.open)app.conn.send(m);}
 function setupConn(conn){
   conn.on('data',onMsg);
-  conn.on('close',()=>{ alert('Gegner hat die Verbindung getrennt.'); goHome(); });
-  conn.on('error',e=>console.error('conn:',e));
+  conn.on('close',()=>{alert('Gegner hat die Verbindung getrennt.');goHome();});
+  conn.on('error',e=>console.error(e));
 }
-
+function createRoom(){
+  cleanup(); app.role='host';
+  const code=genCode(); app.code=code;
+  app.peer=new Peer(PFX+code);
+  app.peer.on('open',()=>{
+    document.getElementById('room-code-display').textContent=code;
+    document.getElementById('code-box').style.display='flex';
+  });
+  app.peer.on('connection',conn=>{
+    if(app.conn){conn.close();return;}
+    app.conn=conn; setupConn(conn);
+    document.getElementById('host-stat').textContent='Verbunden!';
+  });
+  app.peer.on('error',err=>{
+    const s=document.getElementById('host-stat');
+    s.textContent='Fehler: '+(err.type||err.message); s.className='stat err';
+    if(err.type==='unavailable-id'){cleanup();createRoom();}
+  });
+}
+function joinRoom(){
+  const code=document.getElementById('join-input').value.trim().toUpperCase();
+  if(code.length<2){sjStat('Code zu kurz','err');return;}
+  sjStat('Verbinde...',''); cleanup(); app.role='guest'; app.code=code;
+  app.peer=new Peer();
+  app.peer.on('open',()=>{
+    app.conn=app.peer.connect(PFX+code,{reliable:true});
+    app.conn.on('open',()=>{sjStat('Verbunden!','ok');setupConn(app.conn);send({type:'hello',game:app.game});});
+    app.conn.on('error',()=>sjStat('Verbindungsfehler','err'));
+  });
+  app.peer.on('error',err=>sjStat('Fehler: '+(err.type||err.message),'err'));
+}
+function sjStat(m,c){const e=document.getElementById('join-stat');e.textContent=m;e.className='stat '+(c||'');}
 function copyCode(){
   navigator.clipboard.writeText(app.code).then(()=>{
-    const btn=document.querySelectorAll('#code-box .btn')[0];
-    btn.textContent='KOPIERT!';
-    setTimeout(()=>btn.textContent='KOPIEREN',2000);
+    const b=document.querySelectorAll('#code-box .btn')[0];
+    b.textContent='KOPIERT!'; setTimeout(()=>b.textContent='KOPIEREN',2000);
   });
 }
 
-// ═══════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════
 //  MESSAGE ROUTER
-// ═══════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════
 function onMsg(m){
   switch(m.type){
-    case 'hello':      onHello(m); break;
-    case 'start':      onStart(m); break;
-    case 'uttt_move':  onUMove(m); break;
-    case 'uttt_rst':   initUTTT(); break;
-    case 'bs_ready':   onBSReady(); break;
-    case 'bs_shot':    onBSShot(m); break;
-    case 'bs_result':  onBSResult(m); break;
-    case 'bs_rst':     startBSSetup(); break;
+    case 'hello':      onHello(m);   break;
+    case 'start':      onStart(m);   break;
+    case 'uttt_move':  onUMove(m);   break;
+    case 'uttt_rst':   initUTTT();   break;
+    case 'uuttt_move': onUUMove(m);  break;
+    case 'uuttt_rst':  initUUTTT();  break;
+    case 'bs_ready':   onBSReady();  break;
+    case 'bs_shot':    onBSShot(m);  break;
+    case 'bs_result':  onBSResult(m);break;
+    case 'bs_rst':     startBSSetup();break;
   }
 }
-
-function onHello(m){
-  if(m.game!==app.game){
-    send({type:'err',msg:'Falsches Spiel'}); return;
-  }
-  send({type:'start',game:app.game});
-  startGame();
-}
-
-function onStart(m){
-  app.game = m.game;
-  startGame();
-}
-
+function onHello(m){if(m.game!==app.game)return;send({type:'start',game:app.game});startGame();}
+function onStart(m){app.game=m.game;startGame();}
 function startGame(){
-  if(app.game==='uttt') initUTTT();
-  else startBSSetup();
+  if(app.game==='uttt')       initUTTT();
+  else if(app.game==='uuttt') initUUTTT();
+  else                        startBSSetup();
 }
 
-// ═══════════════════════════════════════════
-//  ULTIMATE TIC TAC TOE
-// ═══════════════════════════════════════════
-const U = {
-  boards: [], boardWin: [], active:-1,
-  cur:'X', winner:null, mySym:null
-};
+// ═══════════════════════════════════════════════════════════
+//  SHARED HELPERS
+// ═══════════════════════════════════════════════════════════
+function checkLines(c){
+  const L=[[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+  for(const[a,b,d]of L)if(c[a]&&c[a]===c[b]&&c[a]===c[d])return c[a];
+  if(c.every(v=>v!==null))return'draw';
+  return null;
+}
+function mk(tag,cls,txt){const e=document.createElement(tag);e.className=cls;if(txt)e.textContent=txt;return e;}
+
+// ═══════════════════════════════════════════════════════════
+//  ULTIMATE TIC TAC TOE (2-level)
+// ═══════════════════════════════════════════════════════════
+const U={boards:[],boardWin:[],active:-1,cur:'X',winner:null,mySym:null};
 
 function initUTTT(){
-  U.mySym = app.role==='host' ? 'X' : 'O';
-  U.boards = Array(9).fill(null).map(()=>Array(9).fill(null));
-  U.boardWin = Array(9).fill(null);
-  U.active = -1;
-  U.cur = 'X';
-  U.winner = null;
+  U.mySym=app.role==='host'?'X':'O';
+  U.boards=Array(9).fill(null).map(()=>Array(9).fill(null));
+  U.boardWin=Array(9).fill(null);
+  U.active=-1; U.cur='X'; U.winner=null;
   document.getElementById('uttt-overlay').classList.remove('show');
-  showScreen('uttt');
-  renderU();
+  showScreen('uttt'); renderU();
 }
-
 function renderU(){
-  const board = document.getElementById('uttt-board');
-  board.innerHTML = '';
-  const myTurn = U.cur===U.mySym && !U.winner;
-
-  // badges
+  const bd=document.getElementById('uttt-board'); bd.innerHTML='';
+  const mt=U.cur===U.mySym&&!U.winner;
   const bx=document.getElementById('badge-x'), bo=document.getElementById('badge-o');
   bx.className='uttt-badge x'+(U.cur==='X'?' cur':'');
   bo.className='uttt-badge o'+(U.cur==='O'?' cur':'');
-  bx.textContent = U.mySym==='X' ? '✕ DU' : '✕ GEGNER';
-  bo.textContent = U.mySym==='O' ? '○ DU' : '○ GEGNER';
-
-  const statEl = document.getElementById('uttt-stat');
-  if(!U.winner){
-    statEl.textContent = myTurn ? '→ DU BIST DRAN' : '→ GEGNER AM ZUG';
-    statEl.className = 'stat'+(myTurn?' ok':'');
-  }
-
+  bx.textContent=U.mySym==='X'?'\u2715 DU':'\u2715 GEGNER';
+  bo.textContent=U.mySym==='O'?'\u25CB DU':'\u25CB GEGNER';
+  const se=document.getElementById('uttt-stat');
+  if(!U.winner){se.textContent=mt?'\u2192 DU BIST DRAN':'\u2192 GEGNER AM ZUG';se.className='stat'+(mt?' ok':'');}
   for(let bi=0;bi<9;bi++){
-    const sb = document.createElement('div');
-    sb.className = 'small-board';
-    const bw = U.boardWin[bi];
-    const canBoard = (U.active===-1||U.active===bi) && !bw && !U.winner;
-    if(bw){ sb.classList.add('w'+bw.toLowerCase()); }
-    else if(canBoard){ sb.classList.add('active'); }
-
-    if(bw){
-      const wd=document.createElement('div');
-      wd.className='board-win '+(bw==='draw'?'d':bw.toLowerCase());
-      wd.textContent=bw==='X'?'✕':bw==='O'?'○':'▪';
-      sb.appendChild(wd);
-    }
-
+    const sb=mk('div','small-board');
+    const bw=U.boardWin[bi];
+    const canB=(U.active===-1||U.active===bi)&&!bw&&!U.winner;
+    if(bw)sb.classList.add('w'+bw.toLowerCase());
+    else if(canB)sb.classList.add('active');
+    if(bw){const w=mk('div','board-win '+(bw==='draw'?'d':bw.toLowerCase()),bw==='X'?'\u2715':bw==='O'?'\u25CB':'\u25AA');sb.appendChild(w);}
     for(let ci=0;ci<9;ci++){
-      const cell=document.createElement('div');
-      cell.className='ucell';
+      const cell=mk('div','ucell');
       const v=U.boards[bi][ci];
-      if(v){
-        cell.classList.add(v.toLowerCase(),'taken');
-        cell.textContent=v==='X'?'✕':'○';
-      } else {
-        if(myTurn && canBoard && !bw){
-          cell.classList.add('clickable');
-          cell.onclick=()=>makeUMove(bi,ci);
-        } else {
-          cell.classList.add('locked');
-        }
-      }
+      if(v){cell.classList.add(v.toLowerCase());cell.textContent=v==='X'?'\u2715':'\u25CB';}
+      else if(mt&&canB&&!bw){cell.classList.add('clickable');cell.onclick=(()=>{const a=bi,b=ci;return()=>makeUMove(a,b);})();}
       sb.appendChild(cell);
     }
-    board.appendChild(sb);
+    bd.appendChild(sb);
   }
 }
-
 function makeUMove(bi,ci){
-  if(U.cur!==U.mySym||U.boards[bi][ci]||U.winner) return;
-  if(U.active!==-1&&U.active!==bi) return;
-  applyUMove(bi,ci,U.mySym);
-  send({type:'uttt_move',bi,ci});
+  if(U.cur!==U.mySym||U.boards[bi][ci]||U.winner)return;
+  if(U.active!==-1&&U.active!==bi)return;
+  applyUMove(bi,ci,U.mySym); send({type:'uttt_move',bi,ci});
 }
-
-function onUMove(m){ applyUMove(m.bi,m.ci,U.mySym==='X'?'O':'X'); }
-
+function onUMove(m){applyUMove(m.bi,m.ci,U.mySym==='X'?'O':'X');}
 function applyUMove(bi,ci,player){
   U.boards[bi][ci]=player;
-  if(!U.boardWin[bi]) U.boardWin[bi]=checkLines(U.boards[bi]);
+  if(!U.boardWin[bi])U.boardWin[bi]=checkLines(U.boards[bi]);
   const nb=ci;
   U.active=(!U.boardWin[nb]&&U.boards[nb].some(c=>c===null))?nb:-1;
   U.cur=U.cur==='X'?'O':'X';
-  const wmap=U.boardWin.map(w=>w==='draw'?null:w);
-  U.winner=checkLines(wmap);
-  if(!U.winner&&U.boardWin.every(w=>w!==null)) U.winner='draw';
-  renderU();
-  if(U.winner) showUWin();
+  const wm=U.boardWin.map(w=>w==='draw'?null:w);
+  U.winner=checkLines(wm);
+  if(!U.winner&&U.boardWin.every(w=>w!==null))U.winner='draw';
+  renderU(); if(U.winner)showUWin();
 }
-
-function checkLines(cells){
-  const L=[[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
-  for(const [a,b,c] of L){ if(cells[a]&&cells[a]===cells[b]&&cells[a]===cells[c]) return cells[a]; }
-  if(cells.every(c=>c!==null)) return 'draw';
-  return null;
-}
-
 function showUWin(){
   const t=document.getElementById('uttt-win-text');
   if(U.winner==='draw'){t.textContent='UNENTSCHIEDEN!';t.style.color='#888';}
-  else if(U.winner===U.mySym){t.textContent='DU GEWINNST! 🎉';t.style.color='var(--g)';}
+  else if(U.winner===U.mySym){t.textContent='DU GEWINNST! \uD83C\uDF89';t.style.color='var(--g)';}
   else{t.textContent='DU VERLIERST!';t.style.color='var(--r)';}
   document.getElementById('uttt-overlay').classList.add('show');
 }
+function restartUTTT(){send({type:'uttt_rst'});initUTTT();}
 
-function restartUTTT(){ send({type:'uttt_rst'}); initUTTT(); }
+// ═══════════════════════════════════════════════════════════
+//  ULTIMATE² TIC TAC TOE (3-level / TTT³)
+//
+//  cells[mb][sb][ci]  — Zellinhalt
+//  sbWin[mb][sb]      — Gewinner eines Small-Boards
+//  mbWin[mb]          — Gewinner eines Meta-Boards
+//
+//  Routing nach Zug (mb, sb, ci):
+//    targetMB = sb  (gespieltes Small-Board → nächstes Meta-Board)
+//    targetSB = ci  (gespielte Zelle → nächstes Small-Board)
+//    Ist targetMB fertig → freie Wahl (activeMB=-1, activeSB=-1)
+//    Ist targetSB fertig → activeMB=targetMB, activeSB=-1
+//    Sonst             → activeMB=targetMB, activeSB=targetSB
+// ═══════════════════════════════════════════════════════════
+const UU={cells:null,sbWin:null,mbWin:null,activeMB:-1,activeSB:-1,cur:'X',winner:null,mySym:null};
 
-// ═══════════════════════════════════════════
+function initUUTTT(){
+  UU.mySym=app.role==='host'?'X':'O';
+  UU.cells=Array(9).fill(null).map(()=>Array(9).fill(null).map(()=>Array(9).fill(null)));
+  UU.sbWin=Array(9).fill(null).map(()=>Array(9).fill(null));
+  UU.mbWin=Array(9).fill(null);
+  UU.activeMB=-1; UU.activeSB=-1; UU.cur='X'; UU.winner=null;
+  document.getElementById('uuttt-overlay').classList.remove('show');
+  showScreen('uuttt'); renderUU();
+}
+function makeUUMove(mb,sb,ci){
+  if(UU.cur!==UU.mySym||UU.winner)return;
+  if(UU.cells[mb][sb][ci])return;
+  if(UU.mbWin[mb]||UU.sbWin[mb][sb])return;
+  if(UU.activeMB!==-1&&UU.activeMB!==mb)return;
+  if(UU.activeSB!==-1&&UU.activeSB!==sb)return;
+  applyUUMove(mb,sb,ci,UU.mySym);
+  send({type:'uuttt_move',mb,sb,ci});
+}
+function onUUMove(m){applyUUMove(m.mb,m.sb,m.ci,UU.mySym==='X'?'O':'X');}
+function applyUUMove(mb,sb,ci,player){
+  UU.cells[mb][sb][ci]=player;
+  // Small-Board-Gewinner
+  if(!UU.sbWin[mb][sb])UU.sbWin[mb][sb]=checkLines(UU.cells[mb][sb]);
+  // Meta-Board-Gewinner (draws zählen nicht als Gewinn)
+  if(!UU.mbWin[mb]){
+    const sm=UU.sbWin[mb].map(w=>w==='draw'?null:w);
+    const wn=checkLines(sm);
+    if(wn||UU.sbWin[mb].every(w=>w!==null))UU.mbWin[mb]=wn||'draw';
+  }
+  // Routing
+  const tMB=sb, tSB=ci;
+  const mbDone=UU.mbWin[tMB]!==null||UU.sbWin[tMB].every(w=>w!==null);
+  if(mbDone){UU.activeMB=-1;UU.activeSB=-1;}
+  else{
+    const sbDone=UU.sbWin[tMB][tSB]!==null||UU.cells[tMB][tSB].every(c=>c!==null);
+    UU.activeMB=tMB; UU.activeSB=sbDone?-1:tSB;
+  }
+  UU.cur=UU.cur==='X'?'O':'X';
+  const wm=UU.mbWin.map(w=>w==='draw'?null:w);
+  UU.winner=checkLines(wm);
+  if(!UU.winner&&UU.mbWin.every(w=>w!==null))UU.winner='draw';
+  renderUU(); if(UU.winner)showUUWin();
+}
+function renderUU(){
+  const bd=document.getElementById('uuttt-board'); bd.innerHTML='';
+  const mt=UU.cur===UU.mySym&&!UU.winner;
+  const bx=document.getElementById('uubadge-x'), bo=document.getElementById('uubadge-o');
+  bx.className='uttt-badge x'+(UU.cur==='X'?' cur':'');
+  bo.className='uttt-badge o'+(UU.cur==='O'?' cur':'');
+  bx.textContent=UU.mySym==='X'?'\u2715 DU':'\u2715 GEGNER';
+  bo.textContent=UU.mySym==='O'?'\u25CB DU':'\u25CB GEGNER';
+  const se=document.getElementById('uuttt-stat');
+  if(!UU.winner){se.textContent=mt?'\u2192 DU BIST DRAN':'\u2192 GEGNER AM ZUG';se.className='stat'+(mt?' ok':'');}
+  for(let mb=0;mb<9;mb++){
+    const mdiv=mk('div','meta-board');
+    const mbw=UU.mbWin[mb];
+    const mbAct=(UU.activeMB===-1||UU.activeMB===mb)&&!mbw&&!UU.winner;
+    if(mbw)mdiv.classList.add('w'+mbw.toLowerCase());
+    else if(mbAct)mdiv.classList.add('active');
+    if(mbw){const mw=mk('div','meta-win '+(mbw==='draw'?'d':mbw.toLowerCase()),mbw==='X'?'\u2715':mbw==='O'?'\u25CB':'\u25AA');mdiv.appendChild(mw);}
+    for(let sb=0;sb<9;sb++){
+      const sdiv=mk('div','uu-sb');
+      const sbw=UU.sbWin[mb][sb];
+      const sbAct=mbAct&&(UU.activeSB===-1||UU.activeSB===sb)&&!sbw;
+      if(sbw)sdiv.classList.add('w'+sbw.toLowerCase());
+      else if(sbAct&&mt)sdiv.classList.add('active');
+      if(sbw){const sw=mk('div','uu-sbwin '+(sbw==='draw'?'d':sbw.toLowerCase()),sbw==='X'?'\u2715':sbw==='O'?'\u25CB':'\u25AA');sdiv.appendChild(sw);}
+      for(let ci=0;ci<9;ci++){
+        const cell=mk('div','uucell');
+        const v=UU.cells[mb][sb][ci];
+        if(v){cell.classList.add(v.toLowerCase());cell.textContent=v==='X'?'\u2715':'\u25CB';}
+        else if(mt&&sbAct&&!sbw){
+          cell.classList.add('clickable');
+          cell.onclick=(()=>{const a=mb,b=sb,c=ci;return()=>makeUUMove(a,b,c);})();
+        }
+        sdiv.appendChild(cell);
+      }
+      mdiv.appendChild(sdiv);
+    }
+    bd.appendChild(mdiv);
+  }
+}
+function showUUWin(){
+  const t=document.getElementById('uuttt-win-text');
+  if(UU.winner==='draw'){t.textContent='UNENTSCHIEDEN!';t.style.color='#888';}
+  else if(UU.winner===UU.mySym){t.textContent='DU GEWINNST! \uD83C\uDF89';t.style.color='var(--g)';}
+  else{t.textContent='DU VERLIERST!';t.style.color='var(--r)';}
+  document.getElementById('uuttt-overlay').classList.add('show');
+}
+function restartUUTTT(){send({type:'uuttt_rst'});initUUTTT();}
+
+// ═══════════════════════════════════════════════════════════
 //  BATTLESHIP
-// ═══════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════
 const SHIPS=[
-  {id:'carrier',   name:'Träger',         sz:5},
+  {id:'carrier',   name:'Tr\u00E4ger',         sz:5},
   {id:'battle',    name:'Schlachtschiff', sz:4},
   {id:'cruiser',   name:'Kreuzer',        sz:3},
   {id:'sub',       name:'U-Boot',         sz:3},
-  {id:'destroyer', name:'Zerstörer',      sz:2},
+  {id:'destroyer', name:'Zerst\u00F6rer', sz:2},
 ];
-
-const BS={
-  myBoard:[], myHits:[], shotBoard:[], placed:[],
-  selId:null, orient:'H', myTurn:false,
-  myReady:false, oppReady:false,
-  sunkByOpp:[], sunkByMe:[], winner:null, phase:'setup'
-};
+const BS={myBoard:[],myHits:[],shotBoard:[],placed:[],selId:null,orient:'H',myTurn:false,
+  myReady:false,oppReady:false,sunkByOpp:[],sunkByMe:[],winner:null,phase:'setup'};
 
 function startBSSetup(){
   BS.myBoard=mk10(); BS.myHits=mk10(); BS.shotBoard=mk10();
   BS.placed=[]; BS.selId=SHIPS[0].id; BS.orient='H';
-  BS.myTurn=app.role==='host'; // host goes first
+  BS.myTurn=app.role==='host';
   BS.myReady=false; BS.oppReady=false;
   BS.sunkByOpp=[]; BS.sunkByMe=[]; BS.winner=null; BS.phase='setup';
   document.getElementById('bs-overlay').classList.remove('show');
   document.getElementById('ready-btn').disabled=true;
-  document.getElementById('setup-stat').textContent='Wähle ein Schiff und klicke auf das Feld';
-  renderShipList();
-  renderSetupGrid();
-  updateOrientBtn();
-  showScreen('bs-setup');
+  document.getElementById('setup-stat').textContent='W\u00E4hle ein Schiff und klicke auf das Feld';
+  renderShipList(); renderSetupGrid(); updateOrientBtn(); showScreen('bs-setup');
 }
-
-function mk10(){ return Array(10).fill(null).map(()=>Array(10).fill(null)); }
-
+function mk10(){return Array(10).fill(null).map(()=>Array(10).fill(null));}
 function renderShipList(){
-  const list=document.getElementById('ship-list');
-  list.innerHTML='';
+  const list=document.getElementById('ship-list'); list.innerHTML='';
   for(const s of SHIPS){
     const p=BS.placed.find(x=>x.id===s.id);
-    const div=document.createElement('div');
-    div.className='ship-item'+(p?' placed':'')+(BS.selId===s.id&&!p?' sel':'');
-    div.innerHTML=`<span>${s.name} (${s.sz})</span><div class="ship-pip-row">${Array(s.sz).fill('<div class="ship-pip"></div>').join('')}</div>`;
-    if(!p) div.onclick=()=>{ BS.selId=s.id; renderShipList(); };
+    const div=mk('div','ship-item'+(p?' placed':'')+(BS.selId===s.id&&!p?' sel':''));
+    div.innerHTML='<span>'+s.name+' ('+s.sz+')</span><div class="ship-pip-row">'+Array(s.sz).fill('<div class="ship-pip"></div>').join('')+'</div>';
+    if(!p)div.onclick=(()=>{const id=s.id;return()=>{BS.selId=id;renderShipList();};})();
     list.appendChild(div);
   }
 }
-
-function updateOrientBtn(){
-  document.getElementById('orient-btn').textContent=BS.orient==='H'?'— HORIZONTAL':'| VERTIKAL';
-}
-
-function toggleOrient(){ BS.orient=BS.orient==='H'?'V':'H'; updateOrientBtn(); }
-
-function shipCells(r,c,sz,orient){
-  return Array.from({length:sz},(_,i)=>orient==='H'?{r,c:c+i}:{r:r+i,c});
-}
-
+function updateOrientBtn(){document.getElementById('orient-btn').textContent=BS.orient==='H'?'\u2014 HORIZONTAL':'| VERTIKAL';}
+function toggleOrient(){BS.orient=BS.orient==='H'?'V':'H';updateOrientBtn();}
+function shipCells(r,c,sz,o){return Array.from({length:sz},(_,i)=>o==='H'?{r,c:c+i}:{r:r+i,c});}
 function validPlacement(cells){
   for(const{r,c}of cells){
-    if(r<0||r>=10||c<0||c>=10) return false;
-    if(BS.myBoard[r][c]) return false;
-    for(let dr=-1;dr<=1;dr++) for(let dc=-1;dc<=1;dc++){
+    if(r<0||r>=10||c<0||c>=10)return false;
+    if(BS.myBoard[r][c])return false;
+    for(let dr=-1;dr<=1;dr++)for(let dc=-1;dc<=1;dc++){
       const nr=r+dr,nc=c+dc;
-      if(nr>=0&&nr<10&&nc>=0&&nc<10&&BS.myBoard[nr][nc]) return false;
+      if(nr>=0&&nr<10&&nc>=0&&nc<10&&BS.myBoard[nr][nc])return false;
     }
   }
   return true;
 }
-
 function renderSetupGrid(hoverR,hoverC){
   const grid=document.getElementById('setup-grid');
-  // On first render, build structure; on hover, just update classes
-  const rebuild = grid.children.length === 0;
-  
-  if(rebuild){
-    grid.innerHTML='';
-    grid.appendChild(mk('div','bs-hdr',''));
-    for(let c=0;c<10;c++) grid.appendChild(mk('div','bs-hdr',String.fromCharCode(65+c)));
+  if(!grid.children.length){
+    grid.appendChild(mk('div','bs-hdr'));
+    for(let c=0;c<10;c++)grid.appendChild(mk('div','bs-hdr',String.fromCharCode(65+c)));
     for(let r=0;r<10;r++){
       grid.appendChild(mk('div','bs-hdr',String(r+1)));
-      for(let c=0;c<10;c++){
-        const cell=mk('div','bcell','');
-        cell.dataset.r=r; cell.dataset.c=c;
-        grid.appendChild(cell);
-      }
+      for(let c=0;c<10;c++){const cell=mk('div','bcell');cell.dataset.r=r;cell.dataset.c=c;grid.appendChild(cell);}
     }
-    // Event delegation
-    grid.addEventListener('mousemove',e=>{
-      const t=e.target.closest('.bcell[data-r]');
-      if(t) renderSetupGrid(+t.dataset.r,+t.dataset.c);
-    });
-    grid.addEventListener('mouseleave',()=>clearPrev(grid));
-    grid.addEventListener('click',e=>{
-      const t=e.target.closest('.bcell[data-r]');
-      if(t) placeShip(+t.dataset.r,+t.dataset.c);
-    });
+    grid.addEventListener('mousemove',e=>{const t=e.target.closest('.bcell[data-r]');if(t)renderSetupGrid(+t.dataset.r,+t.dataset.c);});
+    grid.addEventListener('mouseleave',()=>grid.querySelectorAll('.bcell').forEach(c=>c.classList.remove('prev','inv')));
+    grid.addEventListener('click',e=>{const t=e.target.closest('.bcell[data-r]');if(t)placeShip(+t.dataset.r,+t.dataset.c);});
   }
-
-  // Update all cells
   const sel=BS.selId&&!BS.placed.find(p=>p.id===BS.selId)?SHIPS.find(s=>s.id===BS.selId):null;
-  let prevSet=new Set(), prevValid=false;
-  if(sel&&hoverR!=null){
-    const cells=shipCells(hoverR,hoverC,sel.sz,BS.orient);
-    prevValid=validPlacement(cells);
-    cells.forEach(({r,c})=>prevSet.add(r+','+c));
-  }
-
+  let prevSet=new Set(),prevValid=false;
+  if(sel&&hoverR!=null){const cells=shipCells(hoverR,hoverC,sel.sz,BS.orient);prevValid=validPlacement(cells);cells.forEach(({r,c})=>prevSet.add(r+','+c));}
   grid.querySelectorAll('.bcell[data-r]').forEach(cell=>{
-    const r=+cell.dataset.r,c=+cell.dataset.c;
-    const key=r+','+c;
+    const r=+cell.dataset.r,c=+cell.dataset.c,k=r+','+c;
     cell.className='bcell';
-    if(BS.myBoard[r][c]) cell.classList.add('ship');
-    else if(prevSet.has(key)){ cell.classList.add('prev'); if(!prevValid) cell.classList.add('inv'); }
+    if(BS.myBoard[r][c])cell.classList.add('ship');
+    else if(prevSet.has(k)){cell.classList.add('prev');if(!prevValid)cell.classList.add('inv');}
   });
 }
-
-function clearPrev(grid){
-  grid.querySelectorAll('.bcell.prev,.bcell.inv').forEach(c=>{
-    c.classList.remove('prev','inv');
-  });
-}
-
 function placeShip(r,c){
-  if(!BS.selId) return;
+  if(!BS.selId)return;
   const ship=SHIPS.find(s=>s.id===BS.selId);
-  if(!ship||BS.placed.find(p=>p.id===ship.id)) return;
+  if(!ship||BS.placed.find(p=>p.id===ship.id))return;
   const cells=shipCells(r,c,ship.sz,BS.orient);
-  if(!validPlacement(cells)) return;
+  if(!validPlacement(cells))return;
   cells.forEach(({r:sr,c:sc})=>BS.myBoard[sr][sc]=ship.id);
   BS.placed.push({...ship,cells,sunk:false});
   const next=SHIPS.find(s=>!BS.placed.find(p=>p.id===s.id));
   BS.selId=next?next.id:null;
   const done=SHIPS.every(s=>BS.placed.find(p=>p.id===s.id));
   document.getElementById('ready-btn').disabled=!done;
-  if(done) document.getElementById('setup-stat').textContent='Alle Schiffe platziert — bereit?';
-  renderShipList();
-  renderSetupGrid();
+  if(done)document.getElementById('setup-stat').textContent='Alle Schiffe platziert \u2014 bereit?';
+  renderShipList(); renderSetupGrid();
 }
-
 function clearShips(){
   BS.myBoard=mk10(); BS.placed=[]; BS.selId=SHIPS[0].id;
   document.getElementById('ready-btn').disabled=true;
-  document.getElementById('setup-stat').textContent='Wähle ein Schiff und klicke auf das Feld';
+  document.getElementById('setup-stat').textContent='W\u00E4hle ein Schiff und klicke auf das Feld';
   renderShipList(); renderSetupGrid();
 }
-
 function bsReady(){
-  BS.myReady=true;
-  document.getElementById('ready-btn').disabled=true;
+  BS.myReady=true; document.getElementById('ready-btn').disabled=true;
   document.getElementById('setup-stat').textContent='Warte auf Gegner...';
-  send({type:'bs_ready'});
-  if(BS.oppReady) startBSGame();
+  send({type:'bs_ready'}); if(BS.oppReady)startBSGame();
 }
-
-function onBSReady(){
-  BS.oppReady=true;
-  if(BS.myReady) startBSGame();
-  else document.getElementById('setup-stat').textContent='Gegner ist bereit. Warte auf dich...';
-}
-
-function startBSGame(){
-  BS.phase='playing';
-  showScreen('bs-game');
-  renderBSGame();
-  updateBSStat();
-}
-
-// ── Rendering ──────────────────────────────
-
-function renderBSGame(){
-  renderMyBoard();
-  renderOppBoard();
-  renderBSStatus();
-}
-
+function onBSReady(){BS.oppReady=true;if(BS.myReady)startBSGame();else document.getElementById('setup-stat').textContent='Gegner ist bereit. Warte auf dich...';}
+function startBSGame(){BS.phase='playing';showScreen('bs-game');renderBSGame();updateBSStat();}
+function renderBSGame(){renderMyBoard();renderOppBoard();renderBSStatus();}
 function renderMyBoard(){
-  const grid=document.getElementById('my-board');
-  grid.innerHTML='';
-  grid.appendChild(mk('div','bs-hdr',''));
-  for(let c=0;c<10;c++) grid.appendChild(mk('div','bs-hdr',String.fromCharCode(65+c)));
+  const g=document.getElementById('my-board'); g.innerHTML='';
+  g.appendChild(mk('div','bs-hdr'));
+  for(let c=0;c<10;c++)g.appendChild(mk('div','bs-hdr',String.fromCharCode(65+c)));
   for(let r=0;r<10;r++){
-    grid.appendChild(mk('div','bs-hdr',String(r+1)));
+    g.appendChild(mk('div','bs-hdr',String(r+1)));
     for(let c=0;c<10;c++){
-      const cell=mk('div','bcell','');
-      const sid=BS.myBoard[r][c];
-      const hit=BS.myHits[r][c];
-      if(hit==='hit'){ cell.classList.add('hit'); cell.textContent='✕'; }
-      else if(hit==='miss'){ cell.classList.add('miss'); cell.textContent='·'; }
-      else if(sid){
-        const s=BS.placed.find(x=>x.id===sid);
-        cell.classList.add(s&&s.sunk?'sunk':'ship');
-        if(s&&s.sunk) cell.textContent='▪';
-      }
-      grid.appendChild(cell);
+      const cell=mk('div','bcell');
+      const sid=BS.myBoard[r][c],hit=BS.myHits[r][c];
+      if(hit==='hit'){cell.classList.add('hit');cell.textContent='\u2715';}
+      else if(hit==='miss'){cell.classList.add('miss');cell.textContent='\u00B7';}
+      else if(sid){const s=BS.placed.find(x=>x.id===sid);cell.classList.add(s&&s.sunk?'sunk':'ship');if(s&&s.sunk)cell.textContent='\u25AA';}
+      g.appendChild(cell);
     }
   }
 }
-
 function renderOppBoard(){
-  const grid=document.getElementById('opp-board');
-  grid.innerHTML='';
-  grid.appendChild(mk('div','bs-hdr',''));
-  for(let c=0;c<10;c++) grid.appendChild(mk('div','bs-hdr',String.fromCharCode(65+c)));
+  const g=document.getElementById('opp-board'); g.innerHTML='';
+  g.appendChild(mk('div','bs-hdr'));
+  for(let c=0;c<10;c++)g.appendChild(mk('div','bs-hdr',String.fromCharCode(65+c)));
   for(let r=0;r<10;r++){
-    grid.appendChild(mk('div','bs-hdr',String(r+1)));
+    g.appendChild(mk('div','bs-hdr',String(r+1)));
     for(let c=0;c<10;c++){
-      const cell=mk('div','bcell','');
+      const cell=mk('div','bcell');
       const s=BS.shotBoard[r][c];
-      if(s==='hit'){ cell.classList.add('hit'); cell.textContent='✕'; }
-      else if(s==='miss'){ cell.classList.add('miss'); cell.textContent='·'; }
-      else if(s==='sunk'){ cell.classList.add('sunk'); cell.textContent='✕'; }
-      else if(s==='pending'){ cell.classList.add('pending'); cell.textContent='?'; }
+      if(s==='hit'){cell.classList.add('hit');cell.textContent='\u2715';}
+      else if(s==='miss'){cell.classList.add('miss');cell.textContent='\u00B7';}
+      else if(s==='sunk'){cell.classList.add('sunk');cell.textContent='\u2715';}
+      else if(s==='pending'){cell.classList.add('pending');cell.textContent='?';}
       else if(BS.myTurn&&BS.phase==='playing'){
         cell.classList.add('tgt');
-        const fr=r,fc=c;
-        cell.onclick=()=>shoot(fr,fc);
+        cell.onclick=(()=>{const fr=r,fc=c;return()=>shoot(fr,fc);})();
       }
-      grid.appendChild(cell);
+      g.appendChild(cell);
     }
   }
 }
-
 function renderBSStatus(){
-  // My ships
   const my=document.getElementById('my-ships');
   my.innerHTML='<div class="bs-label" style="color:var(--b)">MEINE SCHIFFE</div>';
-  for(const s of BS.placed){
-    const d=mk('div','bs-ship-row'+(s.sunk?' sunk':''),'');
-    d.innerHTML=`<span>${s.name}</span><span>${s.sunk?'VERSENKT':'▓'.repeat(s.sz)}</span>`;
-    my.appendChild(d);
-  }
-  // Opp ships
+  for(const s of BS.placed){const d=mk('div','bs-ship-row'+(s.sunk?' sunk':''));d.innerHTML='<span>'+s.name+'</span><span>'+(s.sunk?'VERSENKT':'\u2593'.repeat(s.sz))+'</span>';my.appendChild(d);}
   const op=document.getElementById('opp-ships');
   op.innerHTML='<div class="bs-label" style="color:var(--a)">GEGNER</div>';
-  for(const s of SHIPS){
-    const gone=BS.sunkByMe.includes(s.id);
-    const d=mk('div','bs-ship-row'+(gone?' sunk':''),'');
-    d.innerHTML=`<span>${s.name}</span><span>${gone?'VERSENKT':'░'.repeat(s.sz)}</span>`;
-    op.appendChild(d);
-  }
+  for(const s of SHIPS){const gone=BS.sunkByMe.includes(s.id);const d=mk('div','bs-ship-row'+(gone?' sunk':''));d.innerHTML='<span>'+s.name+'</span><span>'+(gone?'VERSENKT':'\u2591'.repeat(s.sz))+'</span>';op.appendChild(d);}
 }
-
 function updateBSStat(){
-  const el=document.getElementById('bsg-stat');
-  if(BS.phase!=='playing'){el.textContent='';return;}
-  el.textContent = BS.myTurn ? '→ DU BIST DRAN — KLICKE AUF DEN GEGNER' : '→ GEGNER AM ZUG...';
-  el.className = 'stat'+(BS.myTurn?' ok':'');
+  const el=document.getElementById('bsg-stat');if(BS.phase!=='playing'){el.textContent='';return;}
+  el.textContent=BS.myTurn?'\u2192 DU BIST DRAN \u2014 KLICKE AUF DEN GEGNER':'\u2192 GEGNER AM ZUG...';
+  el.className='stat'+(BS.myTurn?' ok':'');
 }
-
-// ── Game logic ─────────────────────────────
-
 function shoot(r,c){
-  if(!BS.myTurn||BS.phase!=='playing') return;
-  if(BS.shotBoard[r][c]!==null) return;
-  BS.myTurn=false;
-  BS.shotBoard[r][c]='pending';
-  send({type:'bs_shot',r,c});
-  renderOppBoard();
-  updateBSStat();
+  if(!BS.myTurn||BS.phase!=='playing')return;
+  if(BS.shotBoard[r][c]!==null)return;
+  BS.myTurn=false; BS.shotBoard[r][c]='pending';
+  send({type:'bs_shot',r,c}); renderOppBoard(); updateBSStat();
 }
-
 function onBSShot(m){
-  const{r,c}=m;
-  const sid=BS.myBoard[r][c];
-  let result='miss', sunkId=null, sunkCells=null;
+  const{r,c}=m; const sid=BS.myBoard[r][c];
+  let result='miss',sunkId=null,sunkCells=null;
   if(sid){
-    BS.myHits[r][c]='hit';
-    result='hit';
+    BS.myHits[r][c]='hit'; result='hit';
     const ship=BS.placed.find(s=>s.id===sid);
-    if(ship){
-      const allHit=ship.cells.every(({r:sr,c:sc})=>BS.myHits[sr][sc]==='hit');
-      if(allHit){
-        ship.sunk=true; sunkId=ship.id; sunkCells=ship.cells; result='sunk';
-      }
-    }
-  } else {
-    BS.myHits[r][c]='miss';
-  }
+    if(ship){const allHit=ship.cells.every(({r:sr,c:sc})=>BS.myHits[sr][sc]==='hit');if(allHit){ship.sunk=true;sunkId=ship.id;sunkCells=ship.cells;result='sunk';}}
+  }else BS.myHits[r][c]='miss';
   const allSunk=BS.placed.every(s=>s.sunk);
   send({type:'bs_result',r,c,result,sunkId,sunkCells,gameOver:allSunk});
   renderMyBoard();
-  if(allSunk){
-    BS.phase='gameover'; BS.winner='opponent';
-    renderBSStatus();
-    showBSWin();
-  } else {
-    BS.sunkByOpp.push(sunkId);
-    BS.myTurn=true;
-    updateBSStat();
-    renderOppBoard();
-  }
+  if(allSunk){BS.phase='gameover';BS.winner='opponent';renderBSStatus();showBSWin();}
+  else{BS.sunkByOpp.push(sunkId);BS.myTurn=true;updateBSStat();renderOppBoard();}
 }
-
 function onBSResult(m){
   const{r,c,result,sunkId,sunkCells,gameOver}=m;
-  if(result==='miss') BS.shotBoard[r][c]='miss';
-  else if(result==='hit') BS.shotBoard[r][c]='hit';
+  if(result==='miss')BS.shotBoard[r][c]='miss';
+  else if(result==='hit')BS.shotBoard[r][c]='hit';
   else if(result==='sunk'){
-    if(sunkCells) sunkCells.forEach(({r:sr,c:sc})=>BS.shotBoard[sr][sc]='sunk');
+    if(sunkCells)sunkCells.forEach(({r:sr,c:sc})=>BS.shotBoard[sr][sc]='sunk');
     else BS.shotBoard[r][c]='sunk';
-    if(sunkId) BS.sunkByMe.push(sunkId);
+    if(sunkId)BS.sunkByMe.push(sunkId);
   }
-  if(gameOver){
-    BS.phase='gameover'; BS.winner='me';
-    renderBSGame(); showBSWin();
-  } else {
-    BS.myTurn=false; // opponent's turn now
-    renderBSGame(); updateBSStat();
-  }
+  if(gameOver){BS.phase='gameover';BS.winner='me';renderBSGame();showBSWin();}
+  else{BS.myTurn=false;renderBSGame();updateBSStat();}
 }
-
 function showBSWin(){
   const t=document.getElementById('bs-win-text');
-  if(BS.winner==='me'){t.textContent='DU GEWINNST! 🎉';t.style.color='var(--g)';}
+  if(BS.winner==='me'){t.textContent='DU GEWINNST! \uD83C\uDF89';t.style.color='var(--g)';}
   else{t.textContent='DU VERLIERST!';t.style.color='var(--r)';}
   document.getElementById('bs-overlay').classList.add('show');
 }
-
-function restartBS(){ send({type:'bs_rst'}); startBSSetup(); }
-
-// ═══════════════════════════════════════════
-//  UTILS
-// ═══════════════════════════════════════════
-function mk(tag,cls,text){
-  const el=document.createElement(tag);
-  el.className=cls; el.textContent=text; return el;
-}
+function restartBS(){send({type:'bs_rst'});startBSSetup();}
 </script>
 </body>
 </html>
