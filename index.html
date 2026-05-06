@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ARCADE — UTTT & BATTLESHIP</title>
+<title>ARCADE — UTTT &amp; BATTLESHIP</title>
 <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=VT323&family=Share+Tech+Mono&display=swap" rel="stylesheet">
 <style>
@@ -38,6 +38,7 @@ input[type=text]:focus{border-color:var(--a);box-shadow:0 0 10px rgba(255,149,0,
 .blink{animation:blink 1s step-end infinite;}
 .conn-bar{position:fixed;top:0;left:0;right:0;padding:4px 14px;background:var(--bg2);border-bottom:1px solid var(--bd);display:flex;align-items:center;gap:10px;font-size:.75rem;color:rgba(0,255,65,.45);z-index:50;}
 .conn-dot{width:8px;height:8px;border-radius:50%;background:var(--g);box-shadow:0 0 6px var(--g);}
+.conn-dot.off{background:var(--r);box-shadow:0 0 6px var(--r);}
 .leave-btn{margin-left:auto;cursor:pointer;color:rgba(0,255,65,.35);}
 .leave-btn:hover{color:var(--g);}
 .back-btn{position:fixed;bottom:20px;left:20px;background:none;border:none;color:rgba(0,255,65,.35);cursor:pointer;font-family:'Share Tech Mono',monospace;font-size:.85rem;}
@@ -57,7 +58,17 @@ input[type=text]:focus{border-color:var(--a);box-shadow:0 0 10px rgba(255,149,0,
 .lobby-panel{border:1px solid var(--bd);background:var(--bg2);padding:30px;text-align:center;min-width:250px;display:flex;flex-direction:column;gap:14px;align-items:center;}
 .room-code{font-family:'VT323',monospace;font-size:3rem;color:var(--a);letter-spacing:8px;text-shadow:0 0 12px var(--a);border:1px dashed rgba(255,149,0,.4);padding:10px 20px;}
 .peer-note{font-size:.7rem;color:rgba(0,255,65,.3);max-width:240px;line-height:1.5;}
-/* OVERLAY */
+/* RECONNECT OVERLAY */
+#reconnect-overlay{position:fixed;inset:0;background:rgba(0,0,0,.92);display:none;align-items:center;justify-content:center;z-index:200;flex-direction:column;gap:24px;text-align:center;padding:30px;}
+#reconnect-overlay.show{display:flex;}
+.rc-box{border:1px solid var(--r);padding:40px 50px;background:var(--bg2);display:flex;flex-direction:column;align-items:center;gap:20px;max-width:420px;}
+.rc-title{font-family:'VT323',monospace;font-size:3rem;color:var(--r);text-shadow:0 0 12px var(--r);}
+.rc-code{font-family:'VT323',monospace;font-size:2.4rem;color:var(--a);letter-spacing:6px;}
+.rc-stat{font-size:.82rem;letter-spacing:1px;min-height:1.3em;}
+.rc-attempts{font-size:.72rem;color:rgba(0,255,65,.35);letter-spacing:1px;}
+@keyframes spin{to{transform:rotate(360deg)}}
+.spinner{width:40px;height:40px;border:3px solid var(--bd);border-top-color:var(--r);border-radius:50%;animation:spin 1s linear infinite;}
+/* OVERLAY (win/lose) */
 .overlay{position:fixed;inset:0;background:rgba(0,0,0,.85);display:none;align-items:center;justify-content:center;z-index:100;flex-direction:column;gap:28px;}
 .overlay.show{display:flex;}
 .overlay h2{font-size:4.5rem;}
@@ -140,7 +151,6 @@ input[type=text]:focus{border-color:var(--a);box-shadow:0 0 10px rgba(255,149,0,
 .bs-ship-row{display:flex;justify-content:space-between;padding:2px 0;border-bottom:1px solid rgba(26,38,51,.5);}
 .bs-ship-row.sunk{color:var(--r);text-decoration:line-through;}
 .bs-label{font-size:.75rem;margin-bottom:4px;letter-spacing:1px;}
-/* Responsive */
 @media(max-width:600px){
   h1{font-size:3rem;}
   .game-card{padding:22px 28px;min-width:150px;}
@@ -154,6 +164,7 @@ input[type=text]:focus{border-color:var(--a);box-shadow:0 0 10px rgba(255,149,0,
   .outer-meta{gap:4px;padding:4px;}
   .meta-board{gap:2px;padding:2px;}
   .uucell{width:11px;height:11px;}
+  .rc-box{padding:28px 20px;}
 }
 </style>
 </head>
@@ -162,24 +173,18 @@ input[type=text]:focus{border-color:var(--a);box-shadow:0 0 10px rgba(255,149,0,
 
 <!-- HOME -->
 <div id="screen-home" class="screen active">
-  <div>
-    <h1>ARCADE</h1>
-    <p class="home-sub">ONLINE MULTIPLAYER — WÄHLE EIN SPIEL</p>
-  </div>
+  <div><h1>ARCADE</h1><p class="home-sub">ONLINE MULTIPLAYER &#8212; W&#196;HLE EIN SPIEL</p></div>
   <div class="game-cards">
     <div class="game-card" onclick="selectGame('uttt')">
-      <span class="ico">⊞</span>
-      <h2>ULTIMATE TTT</h2>
-      <p>Tic Tac Toe² — gewinne 3 Boards in einer Reihe</p>
+      <span class="ico">&#8862;</span><h2>ULTIMATE TTT</h2>
+      <p>Tic Tac Toe&#178; &#8212; gewinne 3 Boards in einer Reihe</p>
     </div>
     <div class="game-card" onclick="selectGame('uuttt')">
-      <span class="ico">⊞²</span>
-      <h2>ULTIMATE² TTT</h2>
-      <p>TTT³ — 3 Ebenen, 729 Felder, ein Sieger</p>
+      <span class="ico">&#8862;&#178;</span><h2>ULTIMATE&#178; TTT</h2>
+      <p>TTT&#179; &#8212; 3 Ebenen, 729 Felder, ein Sieger</p>
     </div>
     <div class="game-card" onclick="selectGame('battleship')">
-      <span class="ico">⚓</span>
-      <h2>BATTLESHIP</h2>
+      <span class="ico">&#9875;</span><h2>BATTLESHIP</h2>
       <p>Versenke die Flotte deines Gegners</p>
     </div>
   </div>
@@ -207,13 +212,13 @@ input[type=text]:focus{border-color:var(--a);box-shadow:0 0 10px rgba(255,149,0,
       <p class="stat" id="join-stat"></p>
     </div>
   </div>
-  <button class="back-btn" onclick="goHome()">&#8592; ZURÜCK</button>
+  <button class="back-btn" onclick="goHome()">&#8592; ZUR&#220;CK</button>
 </div>
 
 <!-- UTTT -->
 <div id="screen-uttt" class="screen">
   <div class="conn-bar">
-    <div class="conn-dot"></div><span>VERBUNDEN</span>
+    <div class="conn-dot" id="dot-uttt"></div><span>VERBUNDEN</span>
     <span class="leave-btn" onclick="confirmLeave()">VERLASSEN</span>
   </div>
   <div><h2 style="text-align:center">ULTIMATE TIC TAC TOE</h2></div>
@@ -230,10 +235,10 @@ input[type=text]:focus{border-color:var(--a);box-shadow:0 0 10px rgba(255,149,0,
   </div>
 </div>
 
-<!-- ULTIMATE² TTT -->
+<!-- ULTIMATE&#178; TTT -->
 <div id="screen-uuttt" class="screen">
   <div class="conn-bar">
-    <div class="conn-dot"></div><span>VERBUNDEN</span>
+    <div class="conn-dot" id="dot-uuttt"></div><span>VERBUNDEN</span>
     <span class="leave-btn" onclick="confirmLeave()">VERLASSEN</span>
   </div>
   <div><h2 style="text-align:center">ULTIMATE&#178; TIC TAC TOE</h2></div>
@@ -243,7 +248,7 @@ input[type=text]:focus{border-color:var(--a);box-shadow:0 0 10px rgba(255,149,0,
     <div class="uttt-badge o" id="uubadge-o">&#9675; SPIELER O</div>
   </div>
   <div style="font-size:.7rem;color:rgba(0,255,65,.35);letter-spacing:1px;text-align:center;max-width:520px;">
-    Orange = aktives Meta-Board &nbsp;|&nbsp; Blau = aktives Small-Board &nbsp;|&nbsp; Grün = gewonnenes Board
+    Orange = aktives Meta-Board &nbsp;|&nbsp; Blau = aktives Small-Board &nbsp;|&nbsp; Gr&#252;n = gewonnenes Board
   </div>
   <div class="outer-meta" id="uuttt-board"></div>
   <div class="overlay" id="uuttt-overlay">
@@ -256,18 +261,18 @@ input[type=text]:focus{border-color:var(--a);box-shadow:0 0 10px rgba(255,149,0,
 <!-- BS SETUP -->
 <div id="screen-bs-setup" class="screen">
   <div class="conn-bar">
-    <div class="conn-dot"></div><span>VERBUNDEN</span>
+    <div class="conn-dot" id="dot-bss"></div><span>VERBUNDEN</span>
     <span class="leave-btn" onclick="confirmLeave()">VERLASSEN</span>
   </div>
   <div><h2 style="text-align:center">SCHIFFE AUFSTELLEN</h2></div>
-  <p class="stat" id="setup-stat">Wähle ein Schiff und klicke auf das Feld</p>
+  <p class="stat" id="setup-stat">W&#228;hle ein Schiff und klicke auf das Feld</p>
   <div class="setup-wrap">
     <div style="display:flex;flex-direction:column;gap:12px;">
       <h3>SCHIFFE</h3>
       <div id="ship-list" class="ship-list"></div>
       <div class="setup-controls" style="margin-top:6px;">
         <button class="btn blu" id="orient-btn" onclick="toggleOrient()">&#8212; HORIZONTAL</button>
-        <button class="btn" style="font-size:1rem;padding:6px 16px;" onclick="clearShips()">ZURÜCKSETZEN</button>
+        <button class="btn" style="font-size:1rem;padding:6px 16px;" onclick="clearShips()">ZUR&#220;CKSETZEN</button>
         <button class="btn" id="ready-btn" onclick="bsReady()" disabled>BEREIT !</button>
       </div>
     </div>
@@ -281,7 +286,7 @@ input[type=text]:focus{border-color:var(--a);box-shadow:0 0 10px rgba(255,149,0,
 <!-- BS GAME -->
 <div id="screen-bs-game" class="screen">
   <div class="conn-bar">
-    <div class="conn-dot"></div><span>VERBUNDEN</span>
+    <div class="conn-dot" id="dot-bsg"></div><span>VERBUNDEN</span>
     <span class="leave-btn" onclick="confirmLeave()">VERLASSEN</span>
   </div>
   <div><h2 style="text-align:center">SCHIFFE VERSENKEN</h2></div>
@@ -305,20 +310,44 @@ input[type=text]:focus{border-color:var(--a);box-shadow:0 0 10px rgba(255,149,0,
   </div>
 </div>
 
+<!-- RECONNECT OVERLAY (above everything) -->
+<div id="reconnect-overlay">
+  <div class="rc-box">
+    <div class="rc-title">VERBINDUNG VERLOREN</div>
+    <div class="spinner" id="rc-spinner"></div>
+    <p class="rc-stat" id="rc-stat">Verbinde neu<span class="blink">_</span></p>
+    <p class="rc-attempts" id="rc-attempts"></p>
+    <div style="display:flex;gap:14px;flex-wrap:wrap;justify-content:center;margin-top:6px;">
+      <button class="btn amb" id="rc-now-btn" onclick="reconnectNow()" style="font-size:1.3rem;padding:8px 20px;">JETZT VERBINDEN</button>
+      <button class="btn" onclick="confirmLeave()" style="font-size:1.3rem;padding:8px 20px;border-color:rgba(0,255,65,.4);color:rgba(0,255,65,.4);">VERLASSEN</button>
+    </div>
+  </div>
 </div>
+
+</div><!-- #app -->
 <script>
 // ═══════════════════════════════════════════════════════════
 //  APP STATE
 // ═══════════════════════════════════════════════════════════
 const app={screen:'home',game:null,role:null,peer:null,conn:null,code:''};
 
+// Reconnect state
+const RC={
+  active:false,
+  attempts:0,
+  maxAttempts:15,
+  intervalId:null,
+  intervalMs:3000,
+  prevScreen:null
+};
+
 function showScreen(n){
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   const el=document.getElementById('screen-'+n);
   if(el){el.classList.add('active');app.screen=n;}
 }
-function goHome(){cleanup();showScreen('home');}
-function confirmLeave(){if(confirm('Spiel verlassen?')){cleanup();showScreen('home');}}
+function goHome(){cancelReconnect();cleanupConn();showScreen('home');}
+function confirmLeave(){if(confirm('Spiel verlassen?')){cancelReconnect();cleanupConn();showScreen('home');}}
 function selectGame(g){
   app.game=g;
   const t={uttt:'ULTIMATE TIC TAC TOE',uuttt:'ULTIMATE\u00B2 TIC TAC TOE',battleship:'SCHIFFE VERSENKEN'};
@@ -331,24 +360,209 @@ function selectGame(g){
 }
 
 // ═══════════════════════════════════════════════════════════
-//  NETWORK (PeerJS / WebRTC)
+//  CONN-BAR DOTS
+// ═══════════════════════════════════════════════════════════
+function setConnDot(ok){
+  document.querySelectorAll('.conn-dot').forEach(d=>{
+    d.classList.toggle('off',!ok);
+  });
+}
+
+// ═══════════════════════════════════════════════════════════
+//  RECONNECT LOGIC
+// ═══════════════════════════════════════════════════════════
+function onDisconnect(){
+  if(RC.active)return; // already reconnecting
+  if(!app.code||app.screen==='home'||app.screen==='lobby')return;
+  RC.active=true;
+  RC.attempts=0;
+  RC.prevScreen=app.screen;
+  setConnDot(false);
+  showReconnectOverlay('Verbinde neu\u2026');
+  scheduleReconnect();
+}
+
+function showReconnectOverlay(msg){
+  document.getElementById('rc-stat').innerHTML=msg+'<span class="blink">_</span>';
+  document.getElementById('reconnect-overlay').classList.add('show');
+  document.getElementById('rc-spinner').style.display='block';
+}
+
+function hideReconnectOverlay(){
+  document.getElementById('reconnect-overlay').classList.remove('show');
+  RC.active=false;
+  RC.attempts=0;
+  clearInterval(RC.intervalId);
+  RC.intervalId=null;
+  setConnDot(true);
+}
+
+function cancelReconnect(){
+  clearInterval(RC.intervalId); RC.intervalId=null;
+  RC.active=false; RC.attempts=0;
+  document.getElementById('reconnect-overlay').classList.remove('show');
+}
+
+function scheduleReconnect(){
+  clearInterval(RC.intervalId);
+  RC.intervalId=setInterval(()=>{
+    if(!RC.active){clearInterval(RC.intervalId);return;}
+    RC.attempts++;
+    updateRCAttempts();
+    if(RC.attempts>RC.maxAttempts){
+      clearInterval(RC.intervalId);
+      document.getElementById('rc-stat').textContent='Verbindung fehlgeschlagen.';
+      document.getElementById('rc-spinner').style.display='none';
+      return;
+    }
+    doReconnect();
+  },RC.intervalMs);
+  // Immediate first try
+  RC.attempts++;
+  updateRCAttempts();
+  doReconnect();
+}
+
+function updateRCAttempts(){
+  document.getElementById('rc-attempts').textContent='Versuch '+RC.attempts+' / '+RC.maxAttempts;
+}
+
+function reconnectNow(){
+  clearInterval(RC.intervalId); RC.intervalId=null;
+  RC.attempts++;
+  updateRCAttempts();
+  doReconnect();
+  scheduleReconnect();
+}
+
+function doReconnect(){
+  if(!app.code)return;
+  // Clean old conn but keep peer if host (peer has our public ID)
+  if(app.conn){try{app.conn.close();}catch(e){} app.conn=null;}
+
+  if(app.role==='host'){
+    // Host: recreate peer with same ID if destroyed, then wait for incoming connection
+    const pid='arc24-'+app.code;
+    if(!app.peer||app.peer.destroyed||app.peer.disconnected){
+      if(app.peer){try{app.peer.destroy();}catch(e){}}
+      app.peer=new Peer(pid);
+      app.peer.on('open',()=>document.getElementById('rc-stat').innerHTML='Warte auf Gegner<span class="blink">_</span>');
+      app.peer.on('connection',onReconnectConn);
+      app.peer.on('error',()=>{}); // silent, will retry
+    } else {
+      // Peer still alive — just re-attach connection handler
+      app.peer.off('connection');
+      app.peer.on('connection',onReconnectConn);
+    }
+  } else {
+    // Guest: just try to connect again
+    if(!app.peer||app.peer.destroyed){
+      app.peer=new Peer();
+      app.peer.on('open',()=>tryGuestConnect());
+      app.peer.on('error',()=>{});
+    } else {
+      tryGuestConnect();
+    }
+  }
+}
+
+function tryGuestConnect(){
+  if(!RC.active)return;
+  try{
+    const c=app.peer.connect('arc24-'+app.code,{reliable:true});
+    c.on('open',()=>onReconnectConn(c));
+    c.on('error',()=>{});
+  }catch(e){}
+}
+
+function onReconnectConn(conn){
+  if(!RC.active)return; // race guard
+  clearInterval(RC.intervalId); RC.intervalId=null;
+  app.conn=conn;
+  setupConn(conn);
+  // Sync state
+  if(app.role==='host'){
+    send({type:'sync',state:getStateSnapshot()});
+  }
+  hideReconnectOverlay();
+  // Re-render current game
+  reRenderCurrentGame();
+}
+
+// ═══════════════════════════════════════════════════════════
+//  STATE SNAPSHOT (for sync after reconnect)
+// ═══════════════════════════════════════════════════════════
+function getStateSnapshot(){
+  if(app.game==='uttt') return {game:'uttt',screen:app.screen,U:serU()};
+  if(app.game==='uuttt') return {game:'uuttt',screen:app.screen,UU:serUU()};
+  if(app.game==='battleship') return {game:'battleship',screen:app.screen,BS:serBS()};
+  return {};
+}
+function serU(){return{boards:U.boards,boardWin:U.boardWin,active:U.active,cur:U.cur,winner:U.winner,mySym:U.mySym};}
+function serUU(){return{cells:UU.cells,sbWin:UU.sbWin,mbWin:UU.mbWin,activeMB:UU.activeMB,activeSB:UU.activeSB,cur:UU.cur,winner:UU.winner,mySym:UU.mySym};}
+function serBS(){
+  // Don't send myBoard (cheat prevention) — guest restores from their own state
+  return{shotBoard:BS.shotBoard,myHits:BS.myHits,sunkByMe:BS.sunkByMe,sunkByOpp:BS.sunkByOpp,
+    myTurn:BS.myTurn,phase:BS.phase,winner:BS.winner,
+    // placed ship sunk flags (no positions)
+    placedSunk:BS.placed.map(p=>({id:p.id,sunk:p.sunk}))};
+}
+
+function applySnapshot(snap){
+  if(!snap)return;
+  app.game=snap.game;
+  if(snap.game==='uttt'&&snap.U){
+    const s=snap.U;
+    // Keep mySym from current session (don't overwrite role)
+    U.boards=s.boards; U.boardWin=s.boardWin; U.active=s.active;
+    U.cur=s.cur; U.winner=s.winner;
+    // mySym stays as-is (set during initUTTT)
+    showScreen('uttt'); renderU();
+  } else if(snap.game==='uuttt'&&snap.UU){
+    const s=snap.UU;
+    UU.cells=s.cells; UU.sbWin=s.sbWin; UU.mbWin=s.mbWin;
+    UU.activeMB=s.activeMB; UU.activeSB=s.activeSB;
+    UU.cur=s.cur; UU.winner=s.winner;
+    showScreen('uuttt'); renderUU();
+  } else if(snap.game==='battleship'&&snap.BS){
+    const s=snap.BS;
+    BS.shotBoard=s.shotBoard; BS.myHits=s.myHits;
+    BS.sunkByMe=s.sunkByMe; BS.sunkByOpp=s.sunkByOpp;
+    BS.myTurn=s.myTurn; BS.phase=s.phase; BS.winner=s.winner;
+    if(s.placedSunk) s.placedSunk.forEach(ps=>{const p=BS.placed.find(x=>x.id===ps.id);if(p)p.sunk=ps.sunk;});
+    if(s.phase==='playing'||s.phase==='gameover'){showScreen('bs-game');renderBSGame();updateBSStat();}
+    else{showScreen('bs-setup');}
+  }
+}
+
+function reRenderCurrentGame(){
+  const scr=RC.prevScreen||app.screen;
+  if(scr==='uttt') renderU();
+  else if(scr==='uuttt') renderUU();
+  else if(scr==='bs-game'){renderBSGame();updateBSStat();}
+}
+
+// ═══════════════════════════════════════════════════════════
+//  NETWORK
 // ═══════════════════════════════════════════════════════════
 const PFX='arc24-';
 function genCode(){const C='ABCDEFGHJKLMNPQRSTUVWXYZ';return Array.from({length:6},()=>C[Math.floor(Math.random()*C.length)]).join('');}
 
-function cleanup(){
+function cleanupConn(){
   if(app.conn){try{app.conn.close();}catch(e){} app.conn=null;}
   if(app.peer){try{app.peer.destroy();}catch(e){} app.peer=null;}
   app.role=null; app.code='';
 }
 function send(m){if(app.conn&&app.conn.open)app.conn.send(m);}
+
 function setupConn(conn){
   conn.on('data',onMsg);
-  conn.on('close',()=>{alert('Gegner hat die Verbindung getrennt.');goHome();});
-  conn.on('error',e=>console.error(e));
+  conn.on('close',onDisconnect);
+  conn.on('error',()=>onDisconnect());
 }
+
 function createRoom(){
-  cleanup(); app.role='host';
+  cleanupConn(); app.role='host';
   const code=genCode(); app.code=code;
   app.peer=new Peer(PFX+code);
   app.peer.on('open',()=>{
@@ -363,13 +577,14 @@ function createRoom(){
   app.peer.on('error',err=>{
     const s=document.getElementById('host-stat');
     s.textContent='Fehler: '+(err.type||err.message); s.className='stat err';
-    if(err.type==='unavailable-id'){cleanup();createRoom();}
+    if(err.type==='unavailable-id'){cleanupConn();createRoom();}
   });
 }
+
 function joinRoom(){
   const code=document.getElementById('join-input').value.trim().toUpperCase();
   if(code.length<2){sjStat('Code zu kurz','err');return;}
-  sjStat('Verbinde...',''); cleanup(); app.role='guest'; app.code=code;
+  sjStat('Verbinde...',''); cleanupConn(); app.role='guest'; app.code=code;
   app.peer=new Peer();
   app.peer.on('open',()=>{
     app.conn=app.peer.connect(PFX+code,{reliable:true});
@@ -391,15 +606,16 @@ function copyCode(){
 // ═══════════════════════════════════════════════════════════
 function onMsg(m){
   switch(m.type){
-    case 'hello':      onHello(m);   break;
-    case 'start':      onStart(m);   break;
-    case 'uttt_move':  onUMove(m);   break;
-    case 'uttt_rst':   initUTTT();   break;
-    case 'uuttt_move': onUUMove(m);  break;
-    case 'uuttt_rst':  initUUTTT();  break;
-    case 'bs_ready':   onBSReady();  break;
-    case 'bs_shot':    onBSShot(m);  break;
-    case 'bs_result':  onBSResult(m);break;
+    case 'hello':      onHello(m);    break;
+    case 'start':      onStart(m);    break;
+    case 'sync':       applySnapshot(m.state); break;
+    case 'uttt_move':  onUMove(m);    break;
+    case 'uttt_rst':   initUTTT();    break;
+    case 'uuttt_move': onUUMove(m);   break;
+    case 'uuttt_rst':  initUUTTT();   break;
+    case 'bs_ready':   onBSReady();   break;
+    case 'bs_shot':    onBSShot(m);   break;
+    case 'bs_result':  onBSResult(m); break;
     case 'bs_rst':     startBSSetup();break;
   }
 }
@@ -412,7 +628,7 @@ function startGame(){
 }
 
 // ═══════════════════════════════════════════════════════════
-//  SHARED HELPERS
+//  HELPERS
 // ═══════════════════════════════════════════════════════════
 function checkLines(c){
   const L=[[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
@@ -426,7 +642,6 @@ function mk(tag,cls,txt){const e=document.createElement(tag);e.className=cls;if(
 //  ULTIMATE TIC TAC TOE (2-level)
 // ═══════════════════════════════════════════════════════════
 const U={boards:[],boardWin:[],active:-1,cur:'X',winner:null,mySym:null};
-
 function initUTTT(){
   U.mySym=app.role==='host'?'X':'O';
   U.boards=Array(9).fill(null).map(()=>Array(9).fill(null));
@@ -438,7 +653,7 @@ function initUTTT(){
 function renderU(){
   const bd=document.getElementById('uttt-board'); bd.innerHTML='';
   const mt=U.cur===U.mySym&&!U.winner;
-  const bx=document.getElementById('badge-x'), bo=document.getElementById('badge-o');
+  const bx=document.getElementById('badge-x'),bo=document.getElementById('badge-o');
   bx.className='uttt-badge x'+(U.cur==='X'?' cur':'');
   bo.className='uttt-badge o'+(U.cur==='O'?' cur':'');
   bx.textContent=U.mySym==='X'?'\u2715 DU':'\u2715 GEGNER';
@@ -489,21 +704,9 @@ function showUWin(){
 function restartUTTT(){send({type:'uttt_rst'});initUTTT();}
 
 // ═══════════════════════════════════════════════════════════
-//  ULTIMATE² TIC TAC TOE (3-level / TTT³)
-//
-//  cells[mb][sb][ci]  — Zellinhalt
-//  sbWin[mb][sb]      — Gewinner eines Small-Boards
-//  mbWin[mb]          — Gewinner eines Meta-Boards
-//
-//  Routing nach Zug (mb, sb, ci):
-//    targetMB = sb  (gespieltes Small-Board → nächstes Meta-Board)
-//    targetSB = ci  (gespielte Zelle → nächstes Small-Board)
-//    Ist targetMB fertig → freie Wahl (activeMB=-1, activeSB=-1)
-//    Ist targetSB fertig → activeMB=targetMB, activeSB=-1
-//    Sonst             → activeMB=targetMB, activeSB=targetSB
+//  ULTIMATE² TTT (3-level)
 // ═══════════════════════════════════════════════════════════
 const UU={cells:null,sbWin:null,mbWin:null,activeMB:-1,activeSB:-1,cur:'X',winner:null,mySym:null};
-
 function initUUTTT(){
   UU.mySym=app.role==='host'?'X':'O';
   UU.cells=Array(9).fill(null).map(()=>Array(9).fill(null).map(()=>Array(9).fill(null)));
@@ -525,22 +728,16 @@ function makeUUMove(mb,sb,ci){
 function onUUMove(m){applyUUMove(m.mb,m.sb,m.ci,UU.mySym==='X'?'O':'X');}
 function applyUUMove(mb,sb,ci,player){
   UU.cells[mb][sb][ci]=player;
-  // Small-Board-Gewinner
   if(!UU.sbWin[mb][sb])UU.sbWin[mb][sb]=checkLines(UU.cells[mb][sb]);
-  // Meta-Board-Gewinner (draws zählen nicht als Gewinn)
   if(!UU.mbWin[mb]){
     const sm=UU.sbWin[mb].map(w=>w==='draw'?null:w);
     const wn=checkLines(sm);
     if(wn||UU.sbWin[mb].every(w=>w!==null))UU.mbWin[mb]=wn||'draw';
   }
-  // Routing
-  const tMB=sb, tSB=ci;
+  const tMB=sb,tSB=ci;
   const mbDone=UU.mbWin[tMB]!==null||UU.sbWin[tMB].every(w=>w!==null);
   if(mbDone){UU.activeMB=-1;UU.activeSB=-1;}
-  else{
-    const sbDone=UU.sbWin[tMB][tSB]!==null||UU.cells[tMB][tSB].every(c=>c!==null);
-    UU.activeMB=tMB; UU.activeSB=sbDone?-1:tSB;
-  }
+  else{const sbDone=UU.sbWin[tMB][tSB]!==null||UU.cells[tMB][tSB].every(c=>c!==null);UU.activeMB=tMB;UU.activeSB=sbDone?-1:tSB;}
   UU.cur=UU.cur==='X'?'O':'X';
   const wm=UU.mbWin.map(w=>w==='draw'?null:w);
   UU.winner=checkLines(wm);
@@ -550,7 +747,7 @@ function applyUUMove(mb,sb,ci,player){
 function renderUU(){
   const bd=document.getElementById('uuttt-board'); bd.innerHTML='';
   const mt=UU.cur===UU.mySym&&!UU.winner;
-  const bx=document.getElementById('uubadge-x'), bo=document.getElementById('uubadge-o');
+  const bx=document.getElementById('uubadge-x'),bo=document.getElementById('uubadge-o');
   bx.className='uttt-badge x'+(UU.cur==='X'?' cur':'');
   bo.className='uttt-badge o'+(UU.cur==='O'?' cur':'');
   bx.textContent=UU.mySym==='X'?'\u2715 DU':'\u2715 GEGNER';
@@ -575,10 +772,7 @@ function renderUU(){
         const cell=mk('div','uucell');
         const v=UU.cells[mb][sb][ci];
         if(v){cell.classList.add(v.toLowerCase());cell.textContent=v==='X'?'\u2715':'\u25CB';}
-        else if(mt&&sbAct&&!sbw){
-          cell.classList.add('clickable');
-          cell.onclick=(()=>{const a=mb,b=sb,c=ci;return()=>makeUUMove(a,b,c);})();
-        }
+        else if(mt&&sbAct&&!sbw){cell.classList.add('clickable');cell.onclick=(()=>{const a=mb,b=sb,c=ci;return()=>makeUUMove(a,b,c);})();}
         sdiv.appendChild(cell);
       }
       mdiv.appendChild(sdiv);
@@ -725,10 +919,7 @@ function renderOppBoard(){
       else if(s==='miss'){cell.classList.add('miss');cell.textContent='\u00B7';}
       else if(s==='sunk'){cell.classList.add('sunk');cell.textContent='\u2715';}
       else if(s==='pending'){cell.classList.add('pending');cell.textContent='?';}
-      else if(BS.myTurn&&BS.phase==='playing'){
-        cell.classList.add('tgt');
-        cell.onclick=(()=>{const fr=r,fc=c;return()=>shoot(fr,fc);})();
-      }
+      else if(BS.myTurn&&BS.phase==='playing'){cell.classList.add('tgt');cell.onclick=(()=>{const fr=r,fc=c;return()=>shoot(fr,fc);})();}
       g.appendChild(cell);
     }
   }
